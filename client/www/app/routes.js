@@ -14,6 +14,12 @@ router.config(function($stateProvider, $urlRouterProvider) {
       templateUrl: '../nav/nav.html',
       controller: 'navController'
     })
+    .state('loading', {
+      url: '/loading',
+      templateUrl: '../loading/loading.html',
+      params: { action: null },
+      controller: 'loadingController'
+    })
     .state('profile', {
       url: '/profile',
       abstract: true,
@@ -26,6 +32,15 @@ router.config(function($stateProvider, $urlRouterProvider) {
         'profile': {
           templateUrl: '../launch/launch.html',
           controller: 'launchController'
+        }
+      }
+    })
+    .state('profile.launch.host', {
+      url: '/host',
+      views: {
+        'profile.launch': {
+          templateUrl: '../host/host.html',
+          controller: 'hostController'
         }
       }
     })

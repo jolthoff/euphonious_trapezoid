@@ -1,13 +1,12 @@
-sphero.controller('navController', ['$scope', '$window', 'Auth', 'socket', '$state', 'player', '$ionicPopup',
-  function($scope, $window, Auth, socket, $state, player, $ionicPopup) {
+sphero.controller('navController', ['$scope', '$window', 'Auth', '$state', 'player', '$ionicPopup',
+  function($scope, $window, Auth, $state, player, $ionicPopup) {
 
     $scope.loginStatus = false;
     $scope.logoutStatus = true;
     $scope.loaded = false;
 
     $scope.single = function() {
-      console.log("profile is ", player.profile);
-      socket.emit('single', player.profile);
+      $state.go('loading', {action: 'single'});
     };
 
 
@@ -96,11 +95,6 @@ sphero.controller('navController', ['$scope', '$window', 'Auth', 'socket', '$sta
       }
     };
     // will change the above auth check to be server-side later and integrate promises
-
-    socket.on('started', function(data) {
-      player.playerNum = String(data.playerNum);
-      $state.go('profile.game');
-    });
 
     $scope.load();
 

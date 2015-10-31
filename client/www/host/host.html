@@ -1,9 +1,4 @@
-<ion-view title="host">
-
+<ion-content scroll="true" id="users">
 	<button class="button button-stable button-clear button-block " ng-click="host()">Host</button>
-    <ion-content scroll="true" id="users">
-    	<div class="user" ng-repeat="user in active-users" ng-click="invite()"> {{ user.profile.userName }}</div>
-    </ion-content>
-
-    
-</ion-view>
+	<div class="user" ng-repeat="user in active-users" ng-click="invite()"> {{ user.profile.userName }}</div>
+</ion-content>
