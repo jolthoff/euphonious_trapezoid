@@ -99,7 +99,7 @@ var Game = function( ) {
     'ended',
     {
       get: function( ) {
-        return this.maximumValence >= 6;
+        return this.maximumValence >= 8;
       }
     }
   );
