@@ -64,6 +64,7 @@ var removeChain = function( chain ) {
     // At this point the piece has been
     // removed.
     event.success = true;
+    event.valenceMinMax = [this.minimumValence, this.maximumValence];
     this.emit( 'removed', event );
     // Reanchor is the function that drags
     // the possibly unanchored pieces into

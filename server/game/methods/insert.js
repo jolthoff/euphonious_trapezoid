@@ -16,6 +16,7 @@ var insert = function( event ) {
     event.success = true;
     event.id = sphere.id;
     event.valence = sphere.valence;
+    event.valenceMinMax = [this.minimumValence, this.maximumValence];
     this.emit( 'put', event );
     var chain = this.detectChain( coordinates.x, coordinates.y );
     if( chain.remove ) {
@@ -26,6 +27,7 @@ var insert = function( event ) {
     }
   } else {
     event.success = false;
+    event.valenceMinMax = [this.minimumValence, this.maximumValence];
     this.emit( 'put', event );
   }
 

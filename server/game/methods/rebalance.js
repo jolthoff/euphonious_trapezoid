@@ -204,6 +204,7 @@ var rebalance = function( ) {
       state: sphere.state,
       success: true
     };
+    event.valenceMinMax = [this.minimumValence, this.maximumValence];
     this.emit( 'fell', event );
     var chain = this.detectChain( liberty.coordinates.x, liberty.coordinates.y );
     if( chain.remove ) {
