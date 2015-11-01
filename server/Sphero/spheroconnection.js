@@ -5,6 +5,12 @@ var gameQueue = [];
 var playersInRoom = {};
 var activeUsers = {};
 
+var invite = function(io, data) {
+
+  io.to(data.socketID).emit('invited', data.room);
+
+};
+
 var grabProfile = function(io, data) {
 
   if (activeUsers[this.id]) {
