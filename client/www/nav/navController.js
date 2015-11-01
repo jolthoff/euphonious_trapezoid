@@ -14,7 +14,6 @@ sphero.controller('navController', ['$scope', '$window', 'Auth', '$state', 'play
       $state.go('loading', { action: 'single' });
     };
 
-
     $scope.play = function() {
       var anonPlayer = Auth.playAnon();
       Auth.login(anonPlayer.username, anonPlayer.password)
