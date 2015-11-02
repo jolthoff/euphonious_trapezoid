@@ -5,6 +5,12 @@ var gameQueue = [];
 var playersInRoom = {};
 var activeUsers = {};
 
+var invite = function(io, data) {
+
+  io.to(data.socketID).emit('invited', data.room);
+
+};
+
 var grabProfile = function(io, data) {
 
   if (activeUsers[this.id]) {
@@ -38,17 +44,7 @@ var host = function(io, data) {
 
 };
 
-var join = function(io, data) {
-  console.log("data on join is ", data);
-  console.log("this si the activeuser info on join event ", activeUsers[this.id])
-  if (!activeUsers[this.id].joined) {
-    if (gameQueue[0]) { 
 
-      activeUsers[this.id].joined = true;
-    }
-  }
-
-};
 var join = function(io, data) {
   if (!activeUsers[this.id].joined) {
     if (gameQueue[0]) { 
@@ -59,19 +55,7 @@ var join = function(io, data) {
 
       playersInRoom[gameQueue[0]] = playersInRoom[gameQueue[0]] || [];
 
-      playersInRoom[gameQueue[0]].forEach(function(player) {
-
-        console.log("Players in the room inside the loop are ", player);
-
-        if (player[1].userName === data.userName) {
-          found = true;
-        } 
-
-      });
-
-      if (!found) {
-        playersInRoom[gameQueue[0]].push([data, data.userName]);
-      }
+      playersInRoom[gameQueue[0]].push([data, data.userName]);
 
       console.log("Players in room at ", gameQueue[0], " are ", playersInRoom[gameQueue[0]]);
       if(Object.keys(io.nsps['/'].adapter.rooms[gameQueue[0]]).length === 2) {

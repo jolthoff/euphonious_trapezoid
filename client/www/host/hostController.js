@@ -1,7 +1,7 @@
 sphero.controller('hostController', ['$scope', '$state', 'socket', 'player', 
 	function($scope, $state, socket, player) {
 
-	$scope.activeUsers = [];
+	$scope.activeUsers = {};
 	$scope.activeGame = null;
 
 	$scope.host = function() {
@@ -11,11 +11,8 @@ sphero.controller('hostController', ['$scope', '$state', 'socket', 'player',
 	};
 
 	$scope.invite = function(username) {
-    for (var i = 0; i < $scope.activeUsers.length; i++) {
-      if ($scope.activeUsers[i].name === username) {
-        socket.emit('invite', $scope.activeUsers[i].socketID);
-        break;
-      }
+    if ($scope.activeUsers[username]) {
+      socket.emit('invite', {socketID: $scope.activeUsers.name.socketID, room: $scope.activeGame);
     }
 	};
 
@@ -31,10 +28,10 @@ sphero.controller('hostController', ['$scope', '$state', 'socket', 'player',
   });
 
   socket.on('updateUsers', function(data) {
-    $scope.activeUsers = [];
+    $scope.activeUsers = {};
   	for (var socket in data) {
       if (data[socket].profile) {
-        $scope.activeUsers.push({name: data[socket].profile.userName, joined: data[socket].joined, socketID: socket });
+        $scope.activeUsers[data[socket].profile.userName] = { joined: data[socket].joined, socketID: socket };
       }
     };
     console.log($scope.activeUsers);
