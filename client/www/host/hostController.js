@@ -12,7 +12,9 @@ sphero.controller('hostController', ['$scope', '$state', 'socket', 'player',
 
 	$scope.invite = function(username) {
     if ($scope.activeUsers[username]) {
+
       socket.emit('invite', { socketID: $scope.activeUsers.socketID, gameID: $scope.activeGame });
+
     }
 	};
 

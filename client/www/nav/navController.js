@@ -11,9 +11,10 @@ sphero.controller('navController', ['$scope', '$window', 'Auth', '$state', 'play
     $scope.pushIt = true;
 
     $scope.single = function() {
-      $state.go('loading', { action: 'single' });
-    };
 
+      $state.go('loading', { action: 'single' });
+
+    };
 
     $scope.play = function() {
       var anonPlayer = Auth.playAnon();
@@ -57,41 +58,6 @@ sphero.controller('navController', ['$scope', '$window', 'Auth', '$state', 'play
       }
     };
 
-    $scope.showPopup = function() {
-      $scope.signupInfo = {};
-      var signupPopUp = $ionicPopup.show({
-        template: '<form class="list"><label class="item item-input"><input type="text" placeholder="Username" ng-model="signupInfo.username"></label><label class="item item-input"><input type="text" placeholder="Password" ng-model="signupInfo.password"></label><label class="item item-input" id="email"><input type="text" placeholder="Email" ng-model="signupInfo.email"></label></form>',
-        title: 'Enter User info',
-        scope: $scope,
-        buttons: [{
-          text: 'Cancel',
-          type: 'button-clear',
-          onTap: function(e) {
-            return false;
-          }
-        }, {
-          text: '<b>Submit</b>',
-          type: 'button-clear',
-          onTap: function(e) {
-            console.log($scope.signupInfo.username);
-            if ($scope.signupInfo.username === undefined || $scope.signupInfo.username === null) {
-              console.log('none entered');
-              //don't allow the user to close unless he enters proper credentials
-              e.preventDefault();
-            } else {
-              return $scope.signupInfo;
-            }
-          }
-        }, ]
-      });
-
-      signupPopUp.then(function(playerInfo) {
-        signupPopUp.close();
-        if (playerInfo) {
-          $scope.signUp(playerInfo.username, playerInfo.password, playerInfo.email);
-        }
-      });
-    };
 
     $scope.login = function(username, password) {
       if (!$scope.loginActive && $scope.pushIt) {
