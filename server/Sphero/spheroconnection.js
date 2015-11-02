@@ -182,13 +182,11 @@ module.exports.init = function(io, socket) {
   socket.on('checkForUsers', function() {
     io.emit('updateUsers', activeUsers);
   });
-
-  socket.on('invite', function(data) {
-    invite.call(socket, io, data);
-  });
-
   socket.on('privateGame', function(data) {
     privateGame.call(socket, io, data);
+  });
+  socket.on('invite', function(data) {
+    invite.call(socket, io, data);
   });
 
   socket.on('disconnect', function(){
