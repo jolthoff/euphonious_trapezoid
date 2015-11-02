@@ -14,6 +14,7 @@ var invite = function(io, data) {
 
 var privateGame = function(io, data) {
 
+  console.log("am i being called?!");
   var gameId = ((Math.random() * 100000) || 0).toString();
 
   activeUsers[this.id].profile = data;

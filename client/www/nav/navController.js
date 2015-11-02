@@ -12,7 +12,7 @@ sphero.controller('navController', ['$scope', '$window', 'Auth', '$state', 'play
 
     $scope.single = function() {
 
-      $state.go('loading', { action: 'single' });
+      $state.go('profile.loading', { action: 'single' });
 
     };
 

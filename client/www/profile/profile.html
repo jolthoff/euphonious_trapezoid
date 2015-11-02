@@ -13,6 +13,7 @@
         <ion-item>{{}}</ion-item>
         <ion-item>Friends</ion-item>
         <ion-item ng-repeat="friend in friends track by $index">{{friend}}</ion-item>
+        <ion-item menu-close ng-click="home()">Home</ion-item>
         <ion-item menu-close ng-click="logout()">
           Logout
         </ion-item>

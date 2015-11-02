@@ -22,9 +22,14 @@ router.config(function($stateProvider, $urlRouterProvider) {
     })
     .state('profile.loading', {
       url: '/loading',
-      templateUrl: 'loading/loading.html',
       params: { action: null },
-      controller: 'loadingController'
+      views: {
+        'profile': {
+          templateUrl: 'loading/loading.html',
+          controller: 'loadingController'
+        }
+      }
+
     })
     .state('profile.launch', {
       url: '/launch',

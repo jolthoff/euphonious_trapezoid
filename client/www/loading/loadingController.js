@@ -1,8 +1,8 @@
-sphero.controller('loadingController', ['$scope', '$state', '$stateParams', 'socket', 'player', 
+sphero.controller('loadingController', ['$scope', '$state', '$stateParams', 'socket', 'player',
   function($scope, $state, $stateParams, socket, player) {
 
   	var action = $stateParams.action;
-
+    console.log("the action is ", action);
     if (action === 'single') {
       socket.emit('single', player.profile);
     } else if (action === 'join') {
