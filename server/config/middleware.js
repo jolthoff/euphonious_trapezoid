@@ -20,6 +20,7 @@ module.exports = function(app, express) {
 
   //set response headers
   app.use(function(req, res, next) {
+    res.header('x-powered-by': 'Express');
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Origin, Authorization, X-Requested-With, X-AUTHENTICATION, X-IP, Content-Type, Accept');
@@ -30,7 +31,6 @@ module.exports = function(app, express) {
 
   app.use(function(req, res, next) {
     console.log('===================='); //to sep dev logs in terminal
-    console.log(req);
     next();
   });
 
