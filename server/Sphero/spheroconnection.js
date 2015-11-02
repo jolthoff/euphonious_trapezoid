@@ -14,15 +14,13 @@ var invite = function(io, data) {
 
 var privateGame = function(io, data) {
 
-  if (!activeUsers[this.id].joined) {
-    var gameId = ((Math.random() * 100000) || 0).toString();
+  var gameId = ((Math.random() * 100000) || 0).toString();
 
-    activeUsers[this.id].profile = data;
+  activeUsers[this.id].profile = data;
 
-    io.to(this.id).emit('hosting', gameId);
-    console.log("socket ID is! ", this.id);
-    startGame(gameId, io);
-  }
+  io.to(this.id).emit('hosting', gameId);
+  console.log("socket ID is! ", this.id);
+  startGame(gameId, io);
 
 };
 

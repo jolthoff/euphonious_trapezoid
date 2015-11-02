@@ -14,17 +14,17 @@ router.config(function($stateProvider, $urlRouterProvider) {
       templateUrl: 'nav/nav.html',
       controller: 'navController'
     })
-    .state('loading', {
-      url: '/loading',
-      templateUrl: 'loading/loading.html',
-      params: { action: null },
-      controller: 'loadingController'
-    })
     .state('profile', {
       url: '/profile',
       abstract: true,
       templateUrl: 'profile/profile.html',
       controller: 'profileController'
+    })
+    .state('profile.loading', {
+      url: '/loading',
+      templateUrl: 'loading/loading.html',
+      params: { action: null },
+      controller: 'loadingController'
     })
     .state('profile.launch', {
       url: '/launch',
