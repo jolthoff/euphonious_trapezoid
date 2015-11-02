@@ -6,7 +6,7 @@ sphero.controller('hostController', ['$scope', '$state', 'socket', 'player',
 
 	$scope.public = function() {
 
-		socket.emit('host', player.profile);
+    $state.go('profile.loading', { action: 'host' });
 
 	};
 

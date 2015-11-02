@@ -2,7 +2,7 @@ sphero.controller('launchController', ['$scope', '$state', 'player', function($s
 
 	$scope.join = function() {
 
-		$state.go('loading', { action: 'join' });
+		$state.go('profile.loading', { action: 'join' });
 
 	};
 
