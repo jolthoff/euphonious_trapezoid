@@ -30,6 +30,7 @@ module.exports = function(app, express) {
 
   app.use(function(req, res, next) {
     console.log('===================='); //to sep dev logs in terminal
+    console.log(req);
     next();
   });
 
