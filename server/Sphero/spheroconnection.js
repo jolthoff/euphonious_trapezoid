@@ -187,6 +187,10 @@ module.exports.init = function(io, socket) {
     invite.call(socket, io, data);
   });
 
+  socket.on('privateGame', function(data) {
+    privateGame.call(socket, io, data);
+  });
+
   socket.on('disconnect', function(){
     delete activeUsers[this.id];
     io.emit('updateUsers', activeUsers);

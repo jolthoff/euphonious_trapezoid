@@ -25,7 +25,7 @@ sphero.controller('hostController', ['$scope', '$state', 'socket', 'player',
 
   socket.on('hosting', function(data) {
   	$scope.activeGame = data;
-  	console.log($scope.activeGame);
+  	console.log("did i receive this event? ", $scope.activeGame);
   });
 
   socket.on('updateUsers', function(data) {
