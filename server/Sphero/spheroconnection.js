@@ -25,13 +25,11 @@ var privateGame = function(io, data) {
 
 var joinPrivate = function(io, data) {
 
-  console.log("is join private working?");
-
   this.join(data.gameID);
 
   activeUsers[this.id].joined = true;
 
-  playersInRoom[]
+  playersInRoom[data.gameID].push([data.profile, data.profile.userName]);
 
 };
 
