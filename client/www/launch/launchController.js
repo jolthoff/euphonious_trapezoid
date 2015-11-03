@@ -157,8 +157,8 @@ sphero.controller('launchController', ['$scope', '$state', 'player', 'socket', f
     window.requestAnimationFrame(move3);
   }
 
-  var distance = function () {
-    
+  var distance = function (x1, y1, x2, y2) {
+    return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((x2 - x1), 2));
   }
 
   window.requestAnimationFrame(move0);
