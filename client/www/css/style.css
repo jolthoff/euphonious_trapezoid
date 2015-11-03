@@ -261,9 +261,20 @@ input[type='text'] {
 }
 
 
+.svg {
+    background-color: black;
+    position: relative;
+    overflow: hidden;
+}
+
+
 
 #launch {
     background-color: black;
+}
+
+#launch button {
+    z-index: ;
 }
 
 .launch-buttons button {
