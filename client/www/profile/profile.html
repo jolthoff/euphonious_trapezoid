@@ -3,20 +3,17 @@
     <ion-nav-view name="profile"></ion-nav-view>
   </ion-side-menu-content>
   <ion-side-menu side="left">
-    <ion-header-bar class="bar-stable">
+    <ion-header-bar class="profile-bar">
       <h1 class="title">{{profile.userName}}</h1>
     </ion-header-bar>
-    <ion-content>
-      <ion-list>
-        <ion-item>Ranking: {{profile.ranking}}</ion-item>
-        <ion-item>Game Invites</ion-item>
+    <ion-content class="profile">
+      <ion-list class="profile-list">
+        <ion-item class="head">Ranking: {{profile.ranking}}</ion-item>
+        <ion-item class="head">Game Invites</ion-item>
         <ion-item ng-repeat="invite in invites" ng-click="joinPrivate(invite.gameID)">{{ invite.host }}</ion-item>
-        <ion-item>Friends</ion-item>
+        <ion-item class="head">Friends</ion-item>
         <ion-item ng-repeat="friend in friends track by $index">{{friend}}</ion-item>
-        <ion-item menu-close ng-click="home()">Home</ion-item>
-        <ion-item menu-close ng-click="logout()">
-          Logout
-        </ion-item>
+        <ion-item><button class="head profile-button" ng-click="home()">Home</button><span class="head"></span><button class="head profile-button" ng-click="logout()">Logout</button></ion-item>
       </ion-list>
     </ion-content>
   </ion-side-menu>

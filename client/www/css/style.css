@@ -261,9 +261,20 @@ input[type='text'] {
 }
 
 
+.svg {
+    background-color: black;
+    position: relative;
+    overflow: hidden;
+}
+
+
 
 #launch {
     background-color: black;
+}
+
+#launch button {
+    z-index: ;
 }
 
 .launch-buttons button {
@@ -389,4 +400,33 @@ input[type='text'] {
   87.5% {
     box-shadow: 0em -3em 0 0 #fc9bcb, 2em -2em 0 -1em #fc9bcb, 3em 0 0 -1em #fc9bcb, 2em 2em 0 -1em #fc9bcb, 0 3em 0 -1em #fc9bcb, -2em 2em 0 0 #fc9bcb, -3em 0em 0 0 #fc9bcb, -2em -2em 0 0.2em #fc9bcb;
   }
+}
+
+.profile, .profile-bar {
+  background-color: #212121;
+}
+
+.profile-bar .title {
+  font-family: Vermin;
+  color: #787b8c;
+  text-align: left;
+}
+
+.head {
+  text-align: center;
+  font-family: Vermin;
+  color: #787b8c;
+}
+
+.profile-button {
+  background-color: transparent;
+  border: 0;
+}
+
+button .head, span .head {
+  
+}
+
+.profile-list ion-item{
+  background-color: transparent;
 }
