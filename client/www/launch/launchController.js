@@ -56,20 +56,20 @@ sphero.controller('launchController', ['$scope', '$state', 'player', 'socket', f
   var ball1 = animate.append('circle')
     .style('fill', colors[1])
     .attr("r", 25)
-    .attr("cx", 50)
-    .attr("cy", 50)
+    .attr("cx", 100)
+    .attr("cy", 100)
 
   var ball2 = animate.append('circle')
     .style('fill', colors[2])
     .attr("r", 25)
-    .attr("cx", 50)
-    .attr("cy", 50)
+    .attr("cx", 150)
+    .attr("cy", 150)
 
   var ball3 = animate.append('circle')
     .style('fill', colors[3])
     .attr("r", 25)
-    .attr("cx", 50)
-    .attr("cy", 50)
+    .attr("cx", 200)
+    .attr("cy", 200)
 
 
   moveH0 = 3;
@@ -157,6 +157,9 @@ sphero.controller('launchController', ['$scope', '$state', 'player', 'socket', f
     window.requestAnimationFrame(move3);
   }
 
+  var distance = function () {
+    
+  }
 
   window.requestAnimationFrame(move0);
   window.requestAnimationFrame(move1);
