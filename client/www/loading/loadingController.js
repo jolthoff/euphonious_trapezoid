@@ -1,6 +1,7 @@
 sphero.controller('loadingController', ['$scope', '$state', '$stateParams', 'socket', 'player', 'game',
   function($scope, $state, $stateParams, socket, player, game) {
 
+
   	var action = $stateParams.action;
     console.log("the action is ", action);
     if (action === 'single') {
@@ -16,9 +17,6 @@ sphero.controller('loadingController', ['$scope', '$state', '$stateParams', 'soc
         socket.emit('joinPrivate', { profile: player.profile, gameID: $stateParams.gameID });
       }
     }
-
-    $scope.profile = player.profile;
-    console.log($scope.profile);
 
     socket.on('started', function(data) {
       player.playerNum = String(data.playerNum);
