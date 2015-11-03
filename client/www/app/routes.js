@@ -29,7 +29,6 @@ router.config(function($stateProvider, $urlRouterProvider) {
           controller: 'loadingController'
         }
       }
-
     })
     .state('profile.launch', {
       url: '/launch',

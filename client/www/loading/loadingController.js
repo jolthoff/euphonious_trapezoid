@@ -1,6 +1,7 @@
 sphero.controller('loadingController', ['$scope', '$state', '$stateParams', 'socket', 'player', 'game',
   function($scope, $state, $stateParams, socket, player, game) {
 
+
   	var action = $stateParams.action;
     console.log("the action is ", action);
     if (action === 'single') {

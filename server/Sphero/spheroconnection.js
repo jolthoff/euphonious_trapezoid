@@ -70,6 +70,7 @@ var host = function(io, data) {
 var join = function(io, data) {
   if (!activeUsers[this.id].joined) {
     if (gameQueue[0]) {
+
       activeUsers[this.id].joined = true;
       this.join(gameQueue[0]);
 
@@ -95,6 +96,7 @@ var single = function(io, data) {
   console.log(playersInRoom);
   startGame(gameId, io);
 };
+
 var startGame = function(gameId, io) {
   var sockets = Object.keys(io.nsps['/'].adapter.rooms[gameId]).map(function(socketId) {
     return io.sockets.connected[socketId];
@@ -195,7 +197,6 @@ module.exports.init = function(io, socket) {
   socket.on('checkForUsers', function() {
     io.emit('updateUsers', activeUsers);
   });
-
 
   socket.on('disconnect', function(){
     delete activeUsers[this.id];
