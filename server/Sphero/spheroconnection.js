@@ -7,7 +7,7 @@ var activeUsers = {};
 
 var invite = function(io, data) {
 
-  io.to(data.socketID).emit('invited', {gameID: data.gameID, host: data.host);
+  io.to(data.socketID).emit('invited', {gameID: data.gameID, host: data.host});
 
 };
 
