@@ -69,7 +69,7 @@ sphero.factory('game', ['scales', function (scales) {
   };
 
   var updateBoard = function ( data ) {
-    var duration = 50;
+    var duration = 10;
     var spheres = d3.select('#grid').selectAll('.piece')
       .data( data, function (d) {
         return d.id;
@@ -107,9 +107,7 @@ sphero.factory('game', ['scales', function (scales) {
       .style("fill", function (d) {
         return colors[d.state][0];
       });
-
     spheres.exit().remove();
-    return duration;
   };
 
   var getPosition = function (mouseX, mouseY) {
@@ -146,10 +144,10 @@ sphero.factory('game', ['scales', function (scales) {
     };
   };
 
-  var put = function (data) {
+  var animatePut = function (data, delay) {
     var duration;
     if (data.success) {
-      duration = 100;
+      duration = 125;
       d3.select("#grid").append("circle").datum( {coordinates: data.coordinates, id: data.id, state: data.state} )
       .attr("r", 0)
       .attr("class", function (d) { return d.state + " piece"; })
@@ -158,6 +156,7 @@ sphero.factory('game', ['scales', function (scales) {
       .attr("cy", getSvgPosition(data.coordinates).y)
       .transition()
       .duration(duration)
+      .delay( delay )
       .ease('bounce')
       .attr("r", radius)
       .style("fill", colors[data.state][0]);
@@ -166,14 +165,17 @@ sphero.factory('game', ['scales', function (scales) {
       .filter( function (d) {
         return d.coordinates.x === data.coordinates.x && d.coordinates.y === data.coordinates.y;
       });
-      console.log('sphere size: ', sphere);
       if (sphere.size() === 1) {
-        duration = 200
+        duration = 125
         var numPositions = Math.floor(100 + (Math.random() * 5));
         var vibrationRange = 2 * Math.abs( 100/(gridSize * 2) - 100/(gridSize*(2 + wiggleRoom)) );
         for (var i = 0; i < numPositions; i++) {
           sphere = sphere
-          .transition()
+          .transition();
+          if( i = 0 ) {
+            sphere = sphere.delay( delay );
+          }
+          sphere
           .duration(duration/(numPositions + 1))
           .ease("sin")
           .attr("cx", function(d) {
@@ -187,16 +189,14 @@ sphero.factory('game', ['scales', function (scales) {
             return current + Math.random() * vibrationRange - (vibrationRange/2) + "%";
           });
         }
-
         sphere
         .transition()
         .duration(duration/(numPositions + 1))
         .ease("sin")
         .attr("cx", getSvgPosition(data.coordinates).x)
         .attr("cy", getSvgPosition(data.coordinates).y)
-
       } else {
-        duration = 100;
+        duration = 125;
         sphere = d3.select("#grid").append("circle").datum( { id: NaN } )
         .attr("r", 0)
         .attr("class", "blip")
@@ -205,29 +205,26 @@ sphero.factory('game', ['scales', function (scales) {
         .attr("cy", getSvgPosition(data.coordinates).y)
         .transition()
         .duration(duration/2)
+        .delay( delay )
         .ease("elastic")
         .attr("r", Number(radius.slice(0, -1)) * 0.5 + "%" )
-
         .transition()
         .duration(duration/2)
         .ease("linear")
         .style("fill", "black")
-        // .attr("r", 0)
         .remove();
       }
     }
-
-    return duration + 25;
   };
-
-  var removed = function (data) {
-    var duration = 100;
+  var animateRemoved = function (data, delay) {
+    var duration = 125;
     var sphere = d3.select("#grid").selectAll(".piece").filter( function (d) { return d.id === data.id });
     sphere
 //    .style("stroke", colors["A"][1])
 //    .style("stroke-width", 0)
     .transition()
     .duration(duration *  (2/3))
+    .delay( delay )
     .ease("elastic")
     .attr("r", Number(radius.slice(0, -1)) * (2+wiggleRoom)/2 + "%")
 //    .style("stroke-width", 1)
@@ -237,17 +234,13 @@ sphero.factory('game', ['scales', function (scales) {
     .ease("linear")
     .attr("r", 0)
     .remove();
-
-    return duration + 25;
   };
-
-  var moved = function (data) {
-    var duration = 100;
-
+  var animateMoved = function (data, delay) {
+    var duration = 125;
     var sphere = d3.select("#grid").selectAll(".piece").filter( function (d) { return d.id === data.id } );
-
     sphere.transition()
     .duration( duration * .15 )
+    .delay( delay )
     .ease("cubic")
     .attr("r", Number(radius.slice(0, -1)) * 0.75 + "%" )
     .transition()
@@ -259,6 +252,7 @@ sphero.factory('game', ['scales', function (scales) {
     .duration( duration * 0.15 )
     .ease("elastic")
     .attr("r", radius)
+<<<<<<< HEAD
     // .each('end', function( d ) {
     //   elements[ d.id ].removed.disconnect();
     //   elements[ d.id ].removed =
@@ -267,58 +261,39 @@ sphero.factory('game', ['scales', function (scales) {
     // });
 
 
+=======
+>>>>>>> refactor animation functions
     sphere.datum( {id: data.id, state: data.state, coordinates: data.to } );
-
-    return duration + 25;
   };
-
-  var fell = function (data) {
-    var duration = 200;
-
+  var animateFell = function (data, delay) {
+    var duration = 125;
     var sphere = d3.select("#grid").selectAll(".piece").filter( function (d) { return d.id === data.id } );
-
     sphere.transition()
     .duration( duration )
+    .delay( delay )
     .ease("elastic")
     .attr("cx", getSvgPosition(data.to).x )
     .attr("cy", getSvgPosition(data.to).y )
-    .attr("r", radius)
-    // .each( 'end', function( d ) {
-    //   elements[ d.id ].removed.disconnect();
-    //   elements[ d.id ].removed =
-    //     context.createRemovedElement( elements[ d.id ].midiNote, data.valence );
-    //   elements[ d.id ].removed.connect( filter );
-    // });
-
-
+    .attr("r", radius);
     sphere.datum( {id: data.id, state: data.state, coordinates: data.to } );
-
-    return duration + 50;
-
-  }
-
-  var suspended = function (data) {
-    var duration = 500 + Math.random() * 100;
+  };
+  var animateSuspended = function (data, delay) {
+    var duration = 125;
     var sphere = d3.select("#grid").selectAll(".piece").filter( function (d) { return d.id === data.id} );
-
-    var getSmaller = function () {
-      sphere.transition()
-      .duration(duration * 0.5)
-      .ease("sin")
-      .attr("r",  Number( radius.slice(0, -1)) * 0.7 + "%")
-      .style("fill", colors[data.state][1])
-      .transition()
-      .duration(duration * 0.5)
-      .ease("sin")
-      .style("fill", colors[data.state][0])
-      .attr("r", Number( radius.slice(0, -1)) * 0.8 + "%")
-    };
-    getSmaller();
-    return 0;
+    sphere.transition()
+    .duration(duration * 0.5)
+    .delay( delay )
+    .ease("sin")
+    .attr("r",  Number( radius.slice(0, -1)) * 0.7 + "%")
+    .style("fill", colors[data.state][1])
+    .transition()
+    .duration(duration * 0.5)
+    .ease("sin")
+    .style("fill", colors[data.state][0])
+    .attr("r", Number( radius.slice(0, -1)) * 0.8 + "%");
   }
-
-  var rotated = function (data) {
-    var duration = 200;
+  var animateRotated = function (data, delay) {
+    var duration = 125;
     var antiClockwiseAngle = (Math.PI/2) * 1.35;
     var antiClockwiseSteps = 90 * 1.25;
     var antiClockwiseResolution = antiClockwiseAngle/antiClockwiseSteps;
@@ -327,7 +302,6 @@ sphero.factory('game', ['scales', function (scales) {
     var clockwiseSteps = 90 * .25;
     var clockwiseResolution = clockwiseAngle/clockwiseSteps;
     var clockwiseDuration = duration * .35;
-
     var spheres = d3.select("#grid").selectAll(".piece")
     .filter( function (d) {
       var mid, low, high;
@@ -353,9 +327,7 @@ sphero.factory('game', ['scales', function (scales) {
       }
       return true;
     });
-
     var transition = spheres;
-
     var rotateTheta = function (x, y, theta) {
       return {
         x: x * Math.cos(theta) - y * Math.sin(theta),
@@ -363,7 +335,11 @@ sphero.factory('game', ['scales', function (scales) {
       };
     };
     for (var i = 0; i <= antiClockwiseAngle; i+= antiClockwiseResolution) {
-      transition = transition.transition().duration( antiClockwiseDuration/antiClockwiseSteps ).ease('linear')
+      transition = transition.transition( );
+      if( i === 0 ) {
+        transition = transition.delay( delay );
+      }
+      transition = transition.duration( antiClockwiseDuration/antiClockwiseSteps ).ease('linear')
                 .attr("cx", function (d) {
                   var coordinates = rotateTheta( d.coordinates.x, d.coordinates.y, antiClockwiseResolution );
                   d.coordinates.x = coordinates.x;
@@ -374,7 +350,6 @@ sphero.factory('game', ['scales', function (scales) {
                   return getSvgPosition(d.coordinates).y;
                 });
     }
-
     for ( var i = 0; i >= clockwiseAngle; i += clockwiseResolution ) {
       transition = transition.transition().duration( clockwiseDuration/clockwiseSteps ).ease('linear')
                 .attr("cx", function (d) {
@@ -398,10 +373,7 @@ sphero.factory('game', ['scales', function (scales) {
         });
       }
     }
-
-    return duration + 50;
   }
-
   var showBorder = function () {
     var borderSpheres = d3.select('#grid').selectAll(".border").data( function () {
       var data = [];
@@ -502,7 +474,6 @@ sphero.factory('game', ['scales', function (scales) {
 
       });
   };
-
   var indicatorOscillate = function () {
     duration = 1000;
 
@@ -516,30 +487,6 @@ sphero.factory('game', ['scales', function (scales) {
     .attr("r", anchorRadius)
      .each( "end", indicatorOscillate);
   };
-
-  var i = 0;
-  var particle = function () {
-    var m = d3.mouse(this);
-    svg.insert("circle")
-        .attr("cx", m[0])
-        .attr("cy", m[1])
-        .attr("r", 1e-6)
-        .attr("class", "particle")
-        .style("fill", "none")
-        .style("stroke-width", "2.5px")
-        .style("stroke", d3.hsl((i = (i + 1) % 360), 1, .5))
-        .style("stroke-opacity", 1)
-      .transition()
-        .duration(2000)
-        .ease(Math.sqrt)
-        .attr("r", 100)
-        .style("stroke-opacity", 1e-6)
-       .remove();
-
-    d3.event.preventDefault();
-  };
-
-
   var init = function (element, size) {
     gameDomElement = element || document.getElementById("game");
     gridSize = size || 12;
@@ -699,21 +646,21 @@ sphero.factory('game', ['scales', function (scales) {
     // sequence( );
   };
   return {
-
     gameInfo: gameInfo,
     colors: colors,
-
     init: init,
     setSize: setSize,
     showTurnChange: showTurnChange,
     getPosition: getPosition,
     updateBoard: updateBoard,
-    put: put,
-    removed: removed,
-    moved: moved,
-    fell: fell,
-    suspended: suspended,
-    rotated: rotated
+    animate: {
+      put: animatePut,
+      removed: animateRemoved,
+      moved: animateMoved,
+      fell: animateFell,
+      suspended: animateSuspended,
+      rotated: animateRotated
+    }
   };
 
 }]);
