@@ -34,6 +34,7 @@ sphero.controller('launchController', ['$scope', '$state', 'player', 'socket', f
   $scope.init();
 
   // animation ====================
+
   var colors = ["#fc9bcb", "#97d9a1", "#00a8db", "#787b8c"];
 
   width = window.innerWidth;
@@ -157,7 +158,9 @@ sphero.controller('launchController', ['$scope', '$state', 'player', 'socket', f
     window.requestAnimationFrame(move3);
   }
 
-  var distance = function (x1, y1, x2, y2) {
+  //collisions
+
+  var distance = function(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((x2 - x1), 2));
   }
 
