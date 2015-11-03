@@ -17,9 +17,6 @@ sphero.controller('loadingController', ['$scope', '$state', '$stateParams', 'soc
       }
     }
 
-    $scope.profile = player.profile;
-    console.log($scope.profile);
-
     socket.on('started', function(data) {
       player.playerNum = String(data.playerNum);
       $state.go('profile.game');
