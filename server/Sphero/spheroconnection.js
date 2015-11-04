@@ -212,7 +212,6 @@ module.exports.init = function(io, socket) {
     this.leave(activeUsers[this.id].joined);
     console.log("After leave event, we have THESE CONNECTIONS ", Object.keys(io.nsps['/'].adapter.rooms[activeUsers[this.id].joined]));
 
-
   });
 
   socket.on('leftGame', function() {
