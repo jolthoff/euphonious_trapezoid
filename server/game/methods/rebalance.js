@@ -179,10 +179,11 @@ var rebalance = function( ) {
       });
     }
   }
-  event.valenceMinMax = [this.minimumValence, this.maximumValence];
-  this.emit( 'rotated', event.sort(function(a, the) {
+  event = event.sort(function(a, the) {
     return a.id - the.id;
-  }));
+  });
+  event.valenceMinMax = [this.minimumValence, this.maximumValence];
+  this.emit( 'rotated', event );
   // We use find closest liberty to replace all of the
   // fallers on the new, rotated board. In case that on
   // any of these movements a chain is created, that chain
