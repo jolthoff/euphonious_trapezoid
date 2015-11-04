@@ -97,6 +97,8 @@ var single = function(io, data) {
   var gameId = ((Math.random() * 100000) || 0).toString();
   this.join(gameId);
 
+  console.log("gameId on single game is ", gameId, " and socketId is ", this.id);
+
   activeUsers[this.id] = activeUsers[this.id] || {};
   activeUsers[this.id].joined = gameId;
 
