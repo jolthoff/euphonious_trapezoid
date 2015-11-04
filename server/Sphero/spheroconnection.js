@@ -99,6 +99,7 @@ var single = function(io, data) {
     playersInRoom[gameId] = [];
     playersInRoom[gameId].push([data, data.userName]);
 
+
     startGame(gameId, io);
   }
 };
