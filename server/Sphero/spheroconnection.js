@@ -19,7 +19,6 @@ var privateGame = function(io, data) {
 
   io.to(this.id).emit('hosting', gameId);
   this.join(gameId);
-  startGame(gameId, io);
 
 };
 
