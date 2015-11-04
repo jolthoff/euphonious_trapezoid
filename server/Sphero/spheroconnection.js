@@ -27,6 +27,7 @@ var joinPrivate = function(io, data) {
   this.join(data.gameID);
   console.log("server heard the game id is ", data.gameID);
   activeUsers[this.id].joined = true;
+  playersInRoom[data.gameID] = playersInRoom[data.gameID] || [];
   playersInRoom[data.gameID].push([data.profile, data.profile.userName]);
   console.log("the sockets connected to room are ", Object.keys(io.nsps['/'].adapter.rooms[data.gameID]));
   if(Object.keys(io.nsps['/'].adapter.rooms[data.gameID]).length === 2) {
