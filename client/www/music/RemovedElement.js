@@ -1,4 +1,4 @@
-window.AudioContext.prototype.createRemoveElement = function( ) {
+window.AudioContext.prototype.createRemovedElement = function( ) {
   var context = this;
   var ms = Math.pow( 10, -3 );
   var element = {};

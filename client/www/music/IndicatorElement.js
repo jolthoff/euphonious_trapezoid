@@ -1,4 +1,4 @@
-AudioContext.prototype.createAnchorElement = function( ) {
+AudioContext.prototype.createIndicatorElement = function( ) {
   /*
     GRAPH:
 
