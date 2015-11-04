@@ -207,6 +207,8 @@ module.exports.init = function(io, socket) {
   });
   socket.on('leftGame', function(){
     activeUsers[this.id].joined = false;
+    console.log("user who submitted left game event is ",activeUsers[this.id]);
+    console.log("active users after left game is ", activeUsers);
   });
 
   socket.on('leftGame', function() {
