@@ -30,7 +30,7 @@ var joinPrivate = function(io, data) {
   playersInRoom[data.gameID].push([data.profile, data.profile.userName]);
 
   if(Object.keys(io.nsps['/'].adapter.rooms[data.gameID]).length === 4) {
-    startGame(gameQueue.shift(), io);
+    startGame(data.gameID, io);
   }
 
 };
