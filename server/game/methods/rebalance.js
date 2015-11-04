@@ -34,9 +34,9 @@ var rebalance = function( ) {
       if (sphere.state === 'L') {
         if (!liberty) {
           liberty = sphere
-        } else if (sphere.coordinates.x !== coordinates.x || 
+        } else if (sphere.coordinates.x !== coordinates.x ||
           sphere.coordinates.y !== coordinates.y ) {
-          var sphereDistance = Math.abs(sphere.coordinates.x - coordinates.x) + 
+          var sphereDistance = Math.abs(sphere.coordinates.x - coordinates.x) +
           Math.abs(sphere.coordinates.y - coordinates.y);
           var libertyDistance = Math.abs(liberty.coordinates.x - coordinates.x) +
           Math.abs(liberty.coordinates.y - coordinates.y);
@@ -179,6 +179,7 @@ var rebalance = function( ) {
       });
     }
   }
+  event.valenceMinMax = [this.minimumValence, this.maximumValence];
   this.emit( 'rotated', event.sort(function(a, the) {
     return a.id - the.id;
   }));
@@ -211,7 +212,7 @@ var rebalance = function( ) {
       this.removeChain( chain.chain );
     }
   }.bind( this ));
-  // In case that, by chain removal, 
+  // In case that, by chain removal,
   // the board resulting from the rebalance
   // is still not balanced, we rebalance.
   // This process will not cause for an infinite

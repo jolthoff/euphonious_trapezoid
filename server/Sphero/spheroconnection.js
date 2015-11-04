@@ -7,7 +7,7 @@ var activeUsers = {};
 
 var invite = function(io, data) {
 
-  io.to(data.socketID).emit('invited', {gameID: data.gameID, host: data.host);
+  io.to(data.socketID).emit('invited', {gameID: data.gameID, host: data.host});
 
 };
 
@@ -18,8 +18,7 @@ var privateGame = function(io, data) {
   activeUsers[this.id].profile = data;
 
   io.to(this.id).emit('hosting', gameId);
-  console.log("socket ID is! ", this.id);
-  startGame(gameId, io);
+  this.join(gameId);
 
 };
 
@@ -28,8 +27,11 @@ var joinPrivate = function(io, data) {
   this.join(data.gameID);
 
   activeUsers[this.id].joined = true;
-
   playersInRoom[data.gameID].push([data.profile, data.profile.userName]);
+
+  if(Object.keys(io.nsps['/'].adapter.rooms[data.gameID]).length === 4) {
+    startGame(data.gameID, io);
+  }
 
 };
 
