@@ -431,3 +431,19 @@ button .head, span .head {
 .profile-list ion-item{
   background-color: transparent;
 }
+
+
+.popup-head {
+  background-color : black;
+  opacity: 0.7;
+}
+
+.popup-body {
+  background-color : black;
+  opacity: 0.3;
+}
+
+.pop_text {
+  font-family: Vermin;
+  color: #787b8c;
+}
