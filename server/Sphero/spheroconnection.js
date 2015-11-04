@@ -18,7 +18,7 @@ var privateGame = function(io, data) {
   activeUsers[this.id].profile = data;
 
   io.to(this.id).emit('hosting', gameId);
-  console.log("socket ID is! ", this.id);
+  this.join(gameId);
   startGame(gameId, io);
 
 };
