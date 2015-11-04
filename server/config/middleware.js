@@ -1,6 +1,8 @@
 var bodyParser = require('body-parser');
 var expressJwt = require('express-jwt');
+var FacebookStrategy = require('passport-facebook').Strategy;
 var morgan = require('morgan');
+var passport = require('passport');
 
 
 module.exports = function(app, express) {
@@ -10,6 +12,9 @@ module.exports = function(app, express) {
   app.use(bodyParser.urlencoded({
     extended: false
   }));
+
+  var FACEBOOK_APP_ID = "--insert-facebook-app-id-here--"
+  var FACEBOOK_APP_SECRET = "--insert-facebook-app-secret-here--";
 
   //serve static files (Sphero homepage)
   app.use(express.static(__dirname + '/../../static'));
