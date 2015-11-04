@@ -322,6 +322,7 @@ input[type='text'] {
     font-weight: bold;
     text-align: center;
     color: #787b8c;
+    margin-top: 2rem;
 }
 
 #public {
@@ -424,7 +425,7 @@ input[type='text'] {
 }
 
 button .head, span .head {
-  
+
 }
 
 .profile-list ion-item{

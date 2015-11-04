@@ -3,12 +3,19 @@ sphero.controller('hostController', ['$scope', '$state', 'socket', 'player',
 
 	$scope.activeUsers = {};
 	$scope.activeGame = null;
+  $scope.showUsers = false;
 
 	$scope.public = function() {
 
     $state.go('profile.loading', { action: 'host' });
 
 	};
+
+  $scope.toggleShowUsers = function() {
+    socket.emit('checkForUsers');
+    $scope.showUsers = !$scope.showUsers;
+
+  }
 
 	$scope.invite = function(username) {
     if ($scope.activeUsers[username]) {
