@@ -16,7 +16,7 @@ var privateGame = function(io, data) {
   var gameId = ((Math.random() * 100000) || 0).toString();
 
   activeUsers[this.id].profile = data;
-  activeUsers[this.id].joined = true;
+  activeUsers[this.id].joined = gameId;
 
   io.to(this.id).emit('hosting', gameId);
   this.join(gameId);
@@ -27,7 +27,7 @@ var joinPrivate = function(io, data) {
 
   this.join(data.gameID);
 
-  activeUsers[this.id].joined = true;
+  activeUsers[this.id].joined = data.gameID;
 
   playersInRoom[data.gameID] = playersInRoom[data.gameID] || [];
   playersInRoom[data.gameID].push([data.profile, data.profile.userName]);
@@ -55,7 +55,7 @@ var host = function(io, data) {
     // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
     // Join the Room and wait for the players
     activeUsers[this.id].profile = data;
-    activeUsers[this.id].joined = true;
+    activeUsers[this.id].joined = gameId;
 
     console.log(activeUsers[this.id]);
     this.join(gameId);
@@ -77,7 +77,7 @@ var join = function(io, data) {
   if (!activeUsers[this.id].joined) {
     if (gameQueue[0]) {
 
-      activeUsers[this.id].joined = true;
+      activeUsers[this.id].joined = gameQueue[0];
       this.join(gameQueue[0]);
 
       playersInRoom[gameQueue[0]] = playersInRoom[gameQueue[0]] || [];
@@ -96,6 +96,10 @@ var join = function(io, data) {
 var single = function(io, data) {
   var gameId = ((Math.random() * 100000) || 0).toString();
   this.join(gameId);
+
+  activeUsers[this.id] = {};
+  activeUsers[this.id].joined = gameId;
+
   playersInRoom[gameId] = [];
   playersInRoom[gameId].push([data, data.userName]);
   console.log("data from single event is " + data);
@@ -170,6 +174,7 @@ var startGame = function(gameId, io) {
     for (var i = 0; i < sockets.length; i++) {
       console.log("socket id is ", sockets[i].id);
       activeUsers[sockets[i].id].joined = false;
+      sockets[i].leave(gameId);
     }
 
     console.log("player Rank array is ", playerRank);
@@ -212,7 +217,8 @@ module.exports.init = function(io, socket) {
     io.emit('updateUsers', activeUsers);
   });
   socket.on('leftGame', function() {
-    console.log("user who submitted left game event is ",activeUsers[this.id]);
+    console.log("user who submitted left game event is ", activeUsers[this.id].joined);
+    this.leave(activeUsers[this.id].joined)
     activeUsers[this.id].joined = false;
 
   });
