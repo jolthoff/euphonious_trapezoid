@@ -93,8 +93,6 @@ var single = function(io, data) {
     var gameId = (1 +Math.random() * 100000).toString();
     this.join(gameId);
 
-    console.log("gameId on single game is ", gameId, " and socketId is ", this.id);
-
     activeUsers[this.id] = activeUsers[this.id] || {};
     activeUsers[this.id].joined = gameId;
 
@@ -211,7 +209,7 @@ module.exports.init = function(io, socket) {
 
   socket.on('leftGame', function() {
     console.log("user who submitted left game event is ", activeUsers[this.id].joined);
-    this.leave(activeUsers[this.id].joined)
+    this.leave(activeUsers[this.id].joined);
     activeUsers[this.id].joined = false;
 
   });
