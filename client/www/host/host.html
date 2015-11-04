@@ -1,7 +1,10 @@
 <ion-view title="host" id="host">
-	<ion-content padding="true" class="has-header">
+	<ion-content padding="true">
+
 		<button class="button button-stable button-clear button-block " ng-click="public()" id="public"><span class="blue">H</span><span class="gray">o</span><span class="pink">s</span><span class="green">t</span> <span class="gray">a</span> <span class="pink">P</span><span class="blue">u</span><span class="green">b</span><span class="gray">l</span><span class="blue">i</span><span class="pink">c</span> <span class="green">G</span><span class="gray">a</span><span class="blue">m</span><span class="pink">e</span></button>
+
     <div class="user-header" ng-click="toggleShowUsers()"><span class="pink">I</span><span class="blue">n</span><span class="gray">v</span><span class="green">i</span><span class="pink">t</span><span class="blue">e</span> <span class="gray">a</span> <span class="green">U</span><span class="blue">s</span><span class="pink">e</span><span class="gray">r</span></div>
+
     <ul class="user-list">
 		  <li class="user" ng-show="showUsers" ng-repeat="user in activeUsers" ng-click="invite(user.name)"> {{ user.name }}</li>
     </ul>
