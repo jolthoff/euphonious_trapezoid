@@ -130,7 +130,8 @@ var rebalance = function( ) {
   // the pieces with a valence less than the threshold.
   var fallers = [];
   var rotators = [];
-  var event = [];
+  var event = {};
+  event.rotators = [];
   var threshold = this.maximumValence - 2;
   // We find all of the fallers and remove them from the board.
   this.board.forEach( function( sphere ) {
@@ -163,7 +164,7 @@ var rebalance = function( ) {
     var sphere = rotators[ i ];
     if( this.put( -sphere.coordinates.y, sphere.coordinates.x, sphere.state ) ) {
       this.get( -sphere.coordinates.y, sphere.coordinates.x ).id = sphere.id;
-      event.push({
+      event.rotators.push({
         to: {
           x: -sphere.coordinates.y,
           y: sphere.coordinates.x
@@ -179,7 +180,7 @@ var rebalance = function( ) {
       });
     }
   }
-  event = event.sort(function(a, the) {
+  event.rotators = event.rotators.sort(function(a, the) {
     return a.id - the.id;
   });
   event.valenceMinMax = [this.minimumValence, this.maximumValence];
