@@ -332,17 +332,18 @@ sphero.factory('game', ['scales', function (scales) {
     .filter( function (d) {
       var mid, low, high;
       low = 0;
-      high = data.length - 1;
+      high = data.rotators.length - 1;
       mid = Math.floor( (low + high)/2 )
-      while ( data[mid].id !== d.id) {
+      console.log('.piece data: ', d);
+      while ( data.rotators[mid].id !== d.id) {
         if ( low >= high ) {
           return false;
-        } else if (data[mid].id < d.id) {
-          if( mid === data.length ) {
+        } else if (data.rotators[mid].id < d.id) {
+          if( mid === data.rotators.length ) {
             return false;
           }
           low = mid + 1;
-        } else if (data[mid].id > d.id) {
+        } else if (data.rotators[mid].id > d.id) {
           if (mid === 0) {
             return false;
           }

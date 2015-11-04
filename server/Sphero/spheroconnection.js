@@ -163,6 +163,12 @@ var startGame = function(gameId, io) {
       }
     });
     io.to(gameId).emit('ended', playerRank);
+
+    for (var i = 0; i < sockets.length; i++) {
+      console.log("socket id is ", sockets[i].id);
+      activeUsers[sockets[i].id].joined = false;
+    }
+
     console.log("player Rank array is ", playerRank);
     delete playersInRoom[gameId];
     game = null;
