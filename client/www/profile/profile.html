@@ -10,7 +10,7 @@
       <ion-list class="profile-list">
         <ion-item class="head">Ranking: {{profile.ranking}}</ion-item>
         <ion-item class="head">Game Invites</ion-item>
-        <ion-item ng-repeat="invite in invites" ng-click="joinPrivate(invite.gameID)">{{ invite.host }}</ion-item>
+        <ion-item ng-repeat="invite in invites" ng-click="joinPrivate(invite.gameID)" menu-close>{{ invite.host }}</ion-item>
         <ion-item class="head">Friends</ion-item>
         <ion-item ng-repeat="friend in friends track by $index">{{friend}}</ion-item>
         <ion-item><button class="head profile-button" ng-click="home()">Home</button><span class="head"></span><button class="head profile-button" ng-click="logout()">Logout</button></ion-item>

@@ -76,8 +76,10 @@ sphero.controller('navController', ['$scope', '$window', 'Auth', '$state', 'play
               player.profile = user.profile;
               $window.localStorage.setItem('id_token', user.token);
               var isAuth = Auth.checkAuth();
-              $scope.logoutStatus = !isAuth;
               $scope.logoutStatusButtons = !isAuth;
+              setTimeout(function() {
+                $scope.logoutStatus = !isAuth;
+              }, 25);
               setTimeout(function() {
                 $scope.loginStatus = isAuth;
               }, 150);

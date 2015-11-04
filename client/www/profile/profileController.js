@@ -16,12 +16,20 @@ sphero.controller('profileController', ['$scope', '$window', 'Auth', 'socket', '
   	};
 
     $scope.joinPrivate = function(gameID) {
-      $state.go('profile.loading', { action: 'joinPrivate' })
+      console.log(gameID);
+      $state.go('profile.loading', { action: 'joinPrivate', gameID: gameID })
     };
 
     socket.on('invited', function(data) {
-      $scope.invites.push(data);
-      console.log($scope.invites);
+      var found = false;
+      for (var i = 0; i < $scope.invites.length; i++) {
+        if ($scope.invites[i].host === data.host) {
+          found = true;
+        }
+      }
+      if (!found) {
+        $scope.invites.push(data);
+      }
     });
 
   }

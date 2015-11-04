@@ -19,7 +19,7 @@ sphero.controller('hostController', ['$scope', '$state', 'socket', 'player',
 
 	$scope.invite = function(username) {
     if ($scope.activeUsers[username]) {
-
+      console.log("active game is at ", $scope.activeGame);
       socket.emit('invite', {
         socketID: $scope.activeUsers[username].socketID,
         gameID: $scope.activeGame,
@@ -30,6 +30,7 @@ sphero.controller('hostController', ['$scope', '$state', 'socket', 'player',
 	};
 
   socket.on('started', function(data) {
+    console.log("did i get this event?");
     player.playerNum = String(data.playerNum);
     $state.go('profile.game');
   });
