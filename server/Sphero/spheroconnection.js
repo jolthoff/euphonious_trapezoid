@@ -211,7 +211,7 @@ module.exports.init = function(io, socket) {
     console.log("Before leave event, the ROOM HAS THESE CONNECTIONS ", Object.keys(io.nsps['/'].adapter.rooms[activeUsers[this.id].joined]))
     this.leave(activeUsers[this.id].joined);
     console.log("After leave event, we have THESE CONNECTIONS ", Object.keys(io.nsps['/'].adapter.rooms[activeUsers[this.id].joined]));
-    activeUsers[this.id].joined = false;
+
 
   });
 
