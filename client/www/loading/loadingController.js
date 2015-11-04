@@ -14,6 +14,7 @@ sphero.controller('loadingController', ['$scope', '$state', '$stateParams', 'soc
       } else if (action === 'host') {
         socket.emit('host', player.profile);
       } else if (action === 'joinPrivate') {
+        console.log($stateParams.gameID);
         socket.emit('joinPrivate', { profile: player.profile, gameID: $stateParams.gameID });
       }
     }

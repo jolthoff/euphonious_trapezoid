@@ -17,7 +17,7 @@ sphero.controller('profileController', ['$scope', '$window', 'Auth', 'socket', '
 
     $scope.joinPrivate = function(gameID) {
       console.log(gameID);
-      $state.go('profile.loading', { action: 'joinPrivate' })
+      $state.go('profile.loading', { action: 'joinPrivate', gameID: gameID })
     };
 
     socket.on('invited', function(data) {
