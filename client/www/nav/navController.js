@@ -12,7 +12,9 @@ sphero.controller('navController', ['$scope', '$window', 'Auth', '$state', 'play
 
     $scope.single = function() {
 
-      $state.go('profile.loading', { action: 'single' });
+      $state.go('profile.loading', {
+        action: 'single'
+      });
 
     };
 
@@ -24,7 +26,9 @@ sphero.controller('navController', ['$scope', '$window', 'Auth', '$state', 'play
             player.profile = user.profile;
             $window.localStorage.setItem('id_token', user.token);
             var isAuth = Auth.checkAuth();
-            $scope.logoutStatus = !isAuth;
+            setTimeout(function() {
+              $scope.logoutStatus = !isAuth;
+            }, 25);
             $scope.logoutStatusButtons = !isAuth;
             setTimeout(function() {
               $scope.loginStatus = isAuth;
