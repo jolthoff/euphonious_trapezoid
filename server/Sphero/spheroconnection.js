@@ -191,7 +191,9 @@ module.exports.init = function(io, socket) {
   socket.on('invite', function(data) {
     invite.call(socket, io, data);
   });
-
+  socket.on('joinPrivate', function(data) {
+    joinPrivate.call(socket, io, data);
+  });
   socket.on('grabProfile', function(data) {
     grabProfile.call(socket, io, data);
     io.emit('updateUsers', activeUsers);
