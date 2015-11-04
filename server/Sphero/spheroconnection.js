@@ -29,7 +29,7 @@ var joinPrivate = function(io, data) {
   activeUsers[this.id].joined = true;
   playersInRoom[data.gameID].push([data.profile, data.profile.userName]);
 
-  if(Object.keys(io.nsps['/'].adapter.rooms[data.gameID]).length === 4) {
+  if(Object.keys(io.nsps['/'].adapter.rooms[data.gameID]).length === 2) {
     startGame(data.gameID, io);
   }
 
