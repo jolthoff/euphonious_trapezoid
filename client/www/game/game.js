@@ -17,8 +17,8 @@ sphero.factory('game', ['scales', function (scales) {
 
   var gameInfo = {};
 
-  var colors = { 
-  A: ["#fd3132", "#8a2225", "#ffffff"], 
+  var colors = {
+  A: ["#fd3132", "#8a2225", "#ffffff"],
   0: ["#fc9bcb", "#fccfe6", "#8c3e65"], // light pink #fccfe6 dark pink #8c3e65 other dark pink #b96890
   1: ["#97d9a1", "#c3d9c6", "#499755"], // light green #c3d9c6 dark green #499755
   2: ["#00a8db", "#017ba0", "#017ba0"], // light blue #6ec2db dark blue #017ba0
@@ -35,7 +35,7 @@ sphero.factory('game', ['scales', function (scales) {
       .attr("height", gameHeight)
 
 //    gridStepIncrement = Math.min(gameWidth, gameHeight) / gridSize;
-    
+
     var svgWidth = svg.attr("width");
     var svgHeight = svg.attr("height");
 
@@ -102,7 +102,7 @@ sphero.factory('game', ['scales', function (scales) {
         } else {
           return radius;
         }
-        
+
       })
       .style("fill", function (d) {
         return colors[d.state][0];
@@ -229,7 +229,7 @@ sphero.factory('game', ['scales', function (scales) {
     .transition()
     .duration(duration *  (2/3))
     .ease("elastic")
-    .attr("r", Number(radius.slice(0, -1)) * (2+wiggleRoom)/2 + "%") 
+    .attr("r", Number(radius.slice(0, -1)) * (2+wiggleRoom)/2 + "%")
 //    .style("stroke-width", 1)
     .style("fill", colors[data.state][1])
     .transition()
@@ -259,12 +259,12 @@ sphero.factory('game', ['scales', function (scales) {
     .duration( duration * 0.15 )
     .ease("elastic")
     .attr("r", radius)
-    .each('end', function( d ) {
-      elements[ d.id ].removed.disconnect();
-      elements[ d.id ].removed =
-        context.createRemovedElement( elements[ d.id ].midiNote, data.valence );
-      elements[ d.id ].removed.connect( filter );
-    });
+    // .each('end', function( d ) {
+    //   elements[ d.id ].removed.disconnect();
+    //   elements[ d.id ].removed =
+    //     context.createRemovedElement( elements[ d.id ].midiNote, data.valence );
+    //   elements[ d.id ].removed.connect( filter );
+    // });
 
 
     sphere.datum( {id: data.id, state: data.state, coordinates: data.to } );
@@ -283,12 +283,12 @@ sphero.factory('game', ['scales', function (scales) {
     .attr("cx", getSvgPosition(data.to).x )
     .attr("cy", getSvgPosition(data.to).y )
     .attr("r", radius)
-    .each( 'end', function( d ) {
-      elements[ d.id ].removed.disconnect();
-      elements[ d.id ].removed =
-        context.createRemovedElement( elements[ d.id ].midiNote, data.valence );
-      elements[ d.id ].removed.connect( filter );
-    });
+    // .each( 'end', function( d ) {
+    //   elements[ d.id ].removed.disconnect();
+    //   elements[ d.id ].removed =
+    //     context.createRemovedElement( elements[ d.id ].midiNote, data.valence );
+    //   elements[ d.id ].removed.connect( filter );
+    // });
 
 
     sphere.datum( {id: data.id, state: data.state, coordinates: data.to } );
@@ -356,7 +356,7 @@ sphero.factory('game', ['scales', function (scales) {
     var transition = spheres;
 
     var rotateTheta = function (x, y, theta) {
-      return { 
+      return {
         x: x * Math.cos(theta) - y * Math.sin(theta),
         y: x * Math.sin(theta) + y * Math.cos(theta)
       };
@@ -479,7 +479,7 @@ sphero.factory('game', ['scales', function (scales) {
           .transition()
           .duration( 250 )
           .attr('r', 0)
-          
+
           .transition()
           .duration( 2000 )
           .attr('r', borderMaxRadius)
@@ -553,7 +553,7 @@ sphero.factory('game', ['scales', function (scales) {
     svg
       .style("pointer-events", "all")
 //      .on("ontouchstart" in document ? "touchmove" : "mousemove", particle);
-    
+
     var defs = svg.append('defs');
     var gradient = defs.append('linearGradient').attr("id", "gameGradient");
     gradient.append("stop").attr("offset", "0%").attr("stop-color", "#010708");
