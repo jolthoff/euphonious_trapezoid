@@ -1,5 +1,4 @@
 sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'player', 'Auth', '$ionicPopup', function($scope, $state, game, socket, player, Auth, $ionicPopup) {
-
   element = document.getElementById("game");
 
   // var lastTimePlayed = Date.now();
@@ -39,7 +38,7 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
         game.musical.sequence(lastScheduledAnimation + animationTime);
         d3.timer(game.animate.sequence, delay);
       }
-      if (turnCounter % 8 === 0) {
+      if (turnCounter % 6 === 0 || turnCounter % 8 === 0 ) {
         game.musical.indicator(lastScheduledAnimation + animationTime);
         d3.timer(game.animate.indicator, delay);
       }
@@ -50,57 +49,8 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
   };
   // put, fell, removed have a valence property [MIN, MAX]
   checkQueue();
-
-  window.addEventListener('resize', function() {
-    game.setSize();
-  });
-  console.log('game.gameInfo.isSingle: ', game.gameInfo.isSingle);
-
-  if (game.gameInfo.isSingle) {
-    document.getElementById("indicator").addEventListener('click', function(clickEvent) {
-      if (Number(game.gameInfo.currentTurn) < 3) {
-        game.gameInfo.currentTurn = String(Number(game.gameInfo.currentTurn) + 1);
-        game.gameInfo.playerNum = String(Number(game.gameInfo.playerNum) + 1);
-      } else {
-        game.gameInfo.currentTurn = "0";
-        game.gameInfo.playerNum = "0";
-      }
-
-      // do the turn change
-      // either with just color or oscillation
-      game.showTurnChange();
-    });
-  }
-
-  document.getElementById("game").addEventListener('mousedown', function(mouseDownEvent) {
-    var coordinates = game.getPosition(mouseDownEvent.clientX, mouseDownEvent.clientY);
-    var sending = {
-      coordinates: coordinates,
-      state: game.gameInfo.playerNum
-    };
-    if (!(coordinates.x === 0 && coordinates.y === 0)) {
-      socket.emit('insert', {
-        coordinates: coordinates,
-        state: game.gameInfo.playerNum
-      });
-    }
-  }, false);
-
-  socket.on('state', function(data) {
-    eventQueue.push({
-      event: 'state',
-      data: data
-    });
-  });
-
-  socket.on('ended', function(data) {
-    gameEnded = true;
-    window.removeEventListener('resize');
-    window.removeEventListener('keydown');
-    $scope.showPopup(data);
-  });
-
-  socket.on('put', function(data) {
+  var actionListeners = {};
+  actionListeners.put = function( data ) {
     if( data.success ) {
       eventQueue.push({
         event: 'put',
@@ -110,65 +60,78 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
       game.musical.put( data, game.context.currentTime );
       game.animate.put( data );
     }
+  };
+  var events = [ 'removed', 'moved', 'suspended', 'rotated', 'fell', 'state' ];
+  events.forEach( function( event ) {
+    actionListeners[ event ] = function( data ) {
+      eventQueue.push({
+        event: event,
+        data: data
+      });
+    };
   });
-
-  socket.on('removed', function(data) {
-    eventQueue.push({
-      event: 'removed',
-      data: data
+  actionListeners.turnEnded = function( data ) {
+    game.gameInfo.currentTurn = data.players[ 0 ];
+    game.showTurnChange( data.players, data.duration );
+  };
+  actionListeners.ended = function(data) {
+    gameEnded = true;
+    // Game.end releases all of the audio resources.
+    game.end( );
+    // Remove all listeners related to this specific
+    // instance of the game.
+    var events = [ 'put', 'removed', 'moved', 'fell', 'suspended', 'rotated', 'state', 'turnEnded', 'ended' ];
+    events.forEach( function( event ) {
+      socket.removeListener( event, actionListeners[ event ] );
     });
+    if( game.gameInfo.isSingle ) {
+      document.getElementById('indicator').removeEventListener( 'click', indicatorListener );
+    }
+    document.getElementById( 'game' ).removeEventListener( 'mousedown', gameMousedownListener );
+    window.removeEventListener('resize', resizeListener );
+    $scope.showPopup(data);
+  };
+  events = [ 'put', 'removed', 'moved', 'fell', 'suspended', 'rotated', 'state', 'turnEnded', 'ended' ];
+  events.forEach( function( event ) {
+    socket.on( event, actionListeners[ event ] );
   });
-
-  socket.on('moved', function(data) {
-    eventQueue.push({
-      event: 'moved',
-      data: data
-    });
-  });
-
-  socket.on('suspended', function(data) {
-    eventQueue.push({
-      event: 'suspended',
-      data: data
-    });
-  });
-
-  socket.on('rotated', function(data) {
-    eventQueue.push({
-      event: 'rotated',
-      data: data
-    });
-  });
-
-  socket.on('fell', function(data) {
-    eventQueue.push({
-      event: 'fell',
-      data: data
-    });
-  });
-
-  socket.on('turnEnded', function(data) {
-    // data === {duration: DUR, players: [0,1,2,3] }
-    game.gameInfo.currentTurn = data.players[0];
-
-    // do the turn change
-    // either with just color or oscillation
-    game.showTurnChange(data.players, data.duration);
-
-
-  })
-
+  var resizeListener = function( ) {
+    game.setSize( );
+  };
+  window.addEventListener('resize', resizeListener );
+  if (game.gameInfo.isSingle) {
+    var indicatorListener = function( ) {
+      if( Number( game.gameInfo.currentTurn ) < 3 ) {
+        game.gameInfo.currentTurn = String( Number( game.gameInfo.currentTurn ) + 1 );
+        game.gameInfo.playerNum = String( Number( game.gameInfo.playerNum ) + 1 );
+      } else {
+        game.gameInfo.currentTurn = '0';
+        game.gameInfo.playerNum = '0';
+      }
+      game.showTurnChange( );
+    };
+    document.getElementById('indicator').addEventListener('click', indicatorListener );
+  }
+  var gameMousedownListener = function( mouseDownEvent ) {
+    var coordinates = game.getPosition( mouseDownEvent.clientX, mouseDownEvent.clientY );
+    if( !( coordinates.x === 0 && coordinates.y === 0 ) ) {
+      socket.emit( 'insert', {
+        coordinates: coordinates,
+        state: game.gameInfo.playerNum
+      });
+    }
+  };
+  document.getElementById('game').addEventListener( 'mousedown', gameMousedownListener );
   $scope.showPopup = function(playersArray, addFriendFunc) {
     $scope.endGameArray = []; // an array of the player usernames in order of current game performance
-    console.log('in popup ==============', playersArray);
     $scope.me = null;
     $scope.dupObj = {};
     $scope.place = null;
     $scope.placeObj = {
-      '1': '4st',
-      '2': '3nd',
-      '3': '2rd',
-      '4': '1th'
+      '1': '4th',
+      '2': '3rd',
+      '3': '2nd',
+      '4': '1st'
     };
     $scope.addFriends = addFriendFunc;
     // an array with players profiles in order of their rank for current game
@@ -176,7 +139,6 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
       if (playersArray[i]) {
         if (playersArray[i].userName !== player.profile.userName && playersArray[i].userName !== 'anonymous'/*!$scope.dupObj[playersArray[i].userName]*/ ) {
           $scope.endGameArray.push(playersArray[i].userName);
-          //$scope.dupObj[playersArray[i].userName] = playersArray[i].userName;
         }
         if (playersArray[i].userName === player.profile.userName) {
           $scope.me = playersArray[i];
@@ -184,12 +146,6 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
         }
       }
     }
-    console.log('endGameArray ============', $scope.endGameArray);
-    // //allow player to friend other players
-    // $scope.friend = function(otherPlayer) {
-    //   Auth.addFriend(otherPlayer, player.profile.id);
-    // };
-
     var signupPopUp = $ionicPopup.show({
       templateUrl: '../endgame/endgame.html',
       title: 'Game Stats',
@@ -210,9 +166,5 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
       }
       $state.go('nav');
     });
-
   };
-
-  // todo later - don't queue up the missed insert events, instead show them right away
-
 }]);

@@ -52,7 +52,7 @@ window.AudioContext.prototype.createRemovedElement = function( ) {
       initial: 0
     };
     // Decay time is inversely proportional to valence
-    voice.carrierGainEnv.decay = ( 100 - 95 * valence / 8 ) * ms;
+    voice.carrierGainEnv.decay = Math.abs( ( 100 - 95 * valence / 8 ) * ms );
     // Sustain target is inversely proportional to valence
     voice.carrierGainEnv.sustain = 0.5 / Math.pow( valence, 0.35 );
     // Release target is always 0

@@ -39,7 +39,7 @@ AudioContext.prototype.createIndicatorElement = function( ) {
       if( node instanceof AudioNode ) {
         node.disconnect( );
       }
-      if( node instanceof AudioOscillator ) {
+      if( node instanceof OscillatorNode ) {
         node.stop( when );
       } else if( typeof node.stop === 'function' ) {
         node.stop( when );

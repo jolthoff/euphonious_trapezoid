@@ -33,7 +33,9 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
   var chord;
   var notes;
   var tracks;
-  var filter;
+  var lowpass;
+  var highpass;
+  var compressor;
   var lastSequenced;
 
   var setSize = function () {
@@ -58,7 +60,6 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
   };
 
   var showTurnChange = function () {
-    console.log('current players turn: ', gameInfo.currentTurn);
     indicator
       .style("fill", colors[gameInfo.currentTurn][2]);
 
@@ -118,6 +119,11 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
         return colors[d.state][0];
       });
     spheres.exit().remove();
+    // Reassign the lowpass filter cutoff so
+    // that it is proportional to the number of
+    // spheres on the board.
+    var cutoff = 100 + data.length * 8;
+    lowpass.frequency.setTargetAtTime( cutoff, context.currentTime, 25 );
     return true;
   };
 
@@ -647,7 +653,7 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
       sphere.transition( )
         .duration( duration / 4 )
         .ease( 'cubic-in-out' )
-        .attr( 'r', Number( radius.slice( 0, -1 ) ) * 0.9 + '%' )
+        .attr( 'r', Number( radius.slice( 0, -1 ) ) * 0.7 + '%' )
         // .style( 'fill', function( d ) {
         //   return colors[ d.state ][ 1 ];
         // })
@@ -662,7 +668,6 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
     return true;
   };
   var musicalSequence = function ( when ) {
-    console.log( 'in musical sequence, lastSequenced: ', lastSequenced );
     if (lastSequenced === undefined) {
       var IDs = Object.keys(notes);
       lastSequenced = IDs[ Math.floor( Math.random() * IDs.length) ];
@@ -768,9 +773,12 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
     sounds.rotatorDrones[0] = context.createDroneElement( chord.splice( Math.floor(Math.random() * chord.length), 1)[0] ); 
     notes = {};
     tracks = {};
-    filter = context.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 10000;
+    lowpass = context.createBiquadFilter();
+    lowpass.type = 'lowpass';
+    lowpass.frequency.value = 100;
+    highpass = context.createBiquadFilter( );
+    highpass.type = 'highpass';
+    highpass.frequency.value = 50;
     for (var key in sounds) {
       tracks[key] = context.createGain();
       if (key !== 'rotatorDrones') {
@@ -778,148 +786,52 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
       } else {
         sounds[key][0].connect(tracks[key]);
       }
-      tracks[key].connect(filter);
+      if( key !== 'shake' && key !== 'off' ) {
+        tracks[key].connect(lowpass);
+      } else {
+        tracks[key].connect(highpass);
+      }
     }
     tracks.rotatorDrones.gain.value = 0.75;
     tracks.moved.gain.value = 2;
     tracks.fell.gain.value = 0.5;
     tracks.indicator.gain.value = 1.5;
-    tracks.off.gain.value = 0.25;
-    tracks.shake.gain.value = 0.25;
-    var compressor = context.createDynamicsCompressor( );
-    filter.connect( compressor );
+    tracks.off.gain.value = 0.15;
+    tracks.shake.gain.value = 0.15;
+    compressor = context.createDynamicsCompressor( );
+    lowpass.connect( highpass );
+    highpass.connect( compressor );
     compressor.connect( context.destination );
-
     sounds.rotatorDrones[0].start(context.currentTime);
     showBorder();
-    // svg.insert("circle")
-    //     .attr("cx", "50%")
-    //     .attr("cy", "50%")
-    //     .attr("r", '2%')
-    //     .style("fill", "blue")
-    // ---
-    // // MUSIC stuff
-    // if( !scale ) {
-    //   scale = scales[ Math.floor( Math.random() * ( scales.length - 1 ))];
-    // }
-    // // Create the anchor element
-    // var anchorElement = context.createAnchorElement( 24 + scale[ 0 ] );
-    // anchorElement.connect( filter );
-    // // Sequence
-    // var ms = Math.pow( 10, -3 );
-    // var timeoutLength = 300 * ms; // ms
-    // var sixteenthTime = 125 * ms; // ms
-    // var lastScheduledTime = context.currentTime;
-    // var lastScheduledAnchorTime = context.currentTime;
-    // var lastScheduledCoordinates;
-    // var sequence = function( ) {
-    //   setTimeout( sequence, timeoutLength );
-    //   var timeoutStart = context.currentTime;
-    //   var screen = Math.random( );
-    //   while( lastScheduledTime + sixteenthTime < timeoutStart + timeoutLength ) {
-    //     if( lastScheduledAnchorTime + 8 * sixteenthTime < timeoutStart + timeoutLength ) {
-    //       anchorElement.start( lastScheduledAnchorTime + 8 * sixteenthTime );
-    //       lastScheduledAnchorTime += 8 * sixteenthTime;
-    //       d3.select('#grid').selectAll('circle').filter( function( d ) {
-    //         return d.state === 'A';
-    //       }).transition( )
-    //         .delay( ( lastScheduledAnchorTime - context.currentTime ) * 1000 )
-    //         .duration( 1 * sixteenthTime * 1000 )
-    //         .ease( 'cubic-in-out' )
-    //         .attr('r', Number( radius.slice( 0, -1 ) )*0.75 + '%' )
-    //         .style( 'fill', function( d ) {
-    //           return colors[ d.state ][ 1 ];
-    //         })
-    //         .transition( )
-    //         .duration( 3 * sixteenthTime * 1000 )
-    //         .ease( 'bounce' )
-    //         .attr('r', radius)
-    //         .style( 'fill', function( d ) {
-    //           return colors[ d.state ][ 0 ];
-    //         });
-    //     }
-    //     var ids = Object.keys( elements );
-    //     if( ids.length > 0 && screen > 0.1 ) {
-    //       if( !lastScheduledCoordinates ) {
-    //         var choice = ~~( Math.random( ) * ids.length );
-    //         var sphere = d3.select('#grid').selectAll('circle')
-    //           .filter( function( d ) {
-    //             return Number( ids[ choice ] ) === d.id;
-    //           });
-    //         sphere.each( function( d ) {
-    //           lastScheduledCoordinates = d.coordinates;
-    //         });
-    //         elements[ ids[ choice ] ].sequence.start( lastScheduledTime + sixteenthTime );
-    //         lastScheduledTime += sixteenthTime;
-    //         sphere.transition( )
-    //           .delay( ( lastScheduledTime - context.currentTime ) * 1000 )
-    //           .duration( ( sixteenthTime / 2 ) * 1000 )
-    //           .ease( 'cubic-in-out' )
-    //           .attr( 'r', Number( radius.slice( 0, -1 ) ) * 0.75 + '%' )
-    //           .style( 'fill', function( d ) {
-    //             return colors[ d.state ][ 1 ];
-    //           })
-    //           .transition( )
-    //           .duration( ( sixteenthTime / 2 ) * 1000 )
-    //           .ease( 'elastic' )
-    //           .attr( 'r', radius )
-    //           .style( 'fill', function( d ) {
-    //             return colors[ d.state ][ 0 ];
-    //           });
-    //       } else {
-    //         var neighbors = d3.select('#grid').selectAll('circle').filter( function(d) {
-    //           var condition =
-    //             d.coordinates.x === lastScheduledCoordinates.x + 1 && d.coordinates.y === lastScheduledCoordinates.y ||
-    //             d.coordinates.x === lastScheduledCoordinates.x - 1 && d.coordinates.y === lastScheduledCoordinates.y ||
-    //             d.coordinates.x === lastScheduledCoordinates.x && d.coordinates.y === lastScheduledCoordinates.y + 1 ||
-    //             d.coordinates.x === lastScheduledCoordinates.x && d.coordinates.y === lastScheduledCoordinates.y - 1;
-    //           return condition;
-    //         });
-    //         var choice = ~~(Math.random()*neighbors.size( ));
-    //         var id;
-    //         neighbors.each( function( d, i ) {
-    //           if( i === choice && d.state !== 'A' ) {
-    //             id = d.id;
-    //           } else if( i === choice ) {
-    //             id = -1;
-    //           }
-    //         });
-    //         if( id >= 0 ) {
-    //           var sphere = d3.select('#grid').selectAll('circle')
-    //             .filter( function( d ) {
-    //               return id === d.id;
-    //             });
-    //           sphere.each( function( d ) {
-    //             lastScheduledCoordinates = d.coordinates;
-    //           });
-    //           elements[ id ].sequence.start( lastScheduledTime + sixteenthTime );
-    //           lastScheduledTime += sixteenthTime;
-    //           sphere.transition( )
-    //             .delay( ( lastScheduledTime - context.currentTime ) * 1000 )
-    //             .duration( ( sixteenthTime / 2 ) * 1000 )
-    //             .ease( 'cubic-in-out' )
-    //             .attr( 'r', Number( radius.slice( 0, -1 ) ) * 0.75 + '%' )
-    //             .style( 'fill', function( d ) {
-    //               return colors[ d.state ][ 1 ];
-    //             })
-    //             .transition( )
-    //             .duration( ( sixteenthTime / 2 ) * 1000 )
-    //             .ease( 'elastic' )
-    //             .attr( 'r', radius )
-    //             .style( 'fill', function( d ) {
-    //               return colors[ d.state ][ 0 ];
-    //             });
-    //         } else {
-    //           lastScheduledCoordinates = undefined;
-    //           lastScheduledTime += sixteenthTime;
-    //         }
-    //       }
-    //     } else {
-    //       lastScheduledTime += sixteenthTime;
-    //     }
-    //   }
-    // };
-    // sequence( );
+  };
+  var end = function( ) {
+    // Disconnect all the sounds
+    for( var key in sounds ) {
+      if( key !== 'rotatorDrones' ) {
+        var sound = sounds[ key ];
+        sound.disconnect( context.currentTime );
+      } else {
+        var rotatorDrones = sounds[ key ];
+        for( var droneKey in rotatorDrones ) {
+          var drone = rotatorDrones[ droneKey ];
+          drone.stop( context.currentTime );
+        }
+      }
+    }
+    // Disconnect all the tracks
+    for( var key in tracks ) {
+      var track = tracks[ key ];
+      track.disconnect( );
+    }
+    // Disconnect the lowpass and highpass filters
+    lowpass.disconnect( );
+    highpass.disconnect( );
+    // Disconnect the compressor
+    compressor.disconnect( );
+    // Release reference to the context
+    context.close( );
+    context = undefined;
   };
   return {
     context: context,
@@ -930,6 +842,7 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
     showTurnChange: showTurnChange,
     getPosition: getPosition,
     updateBoard: updateBoard,
+    end: end,
     animate: {
       put: animatePut,
       removed: animateRemoved,
