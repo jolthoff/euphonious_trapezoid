@@ -165,10 +165,10 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
     $scope.dupObj = {};
     $scope.place = null;
     $scope.placeObj = {
-      '1': '1st',
-      '2': '2nd',
-      '3': '3rd',
-      '4': '4th'
+      '1': '4st',
+      '2': '3nd',
+      '3': '2rd',
+      '4': '1th'
     };
     $scope.addFriends = addFriendFunc;
     // an array with players profiles in order of their rank for current game
