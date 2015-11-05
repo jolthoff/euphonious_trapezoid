@@ -77,6 +77,7 @@ var join = function(io, data) {
 
       playersInRoom[gameQueue[0]] = playersInRoom[gameQueue[0]] || [];
       playersInRoom[gameQueue[0]].push([data, data.userName]);
+
       if(Object.keys(io.nsps['/'].adapter.rooms[gameQueue[0]]).length === 2) {
         startGame(gameQueue.shift(), io);
       }
