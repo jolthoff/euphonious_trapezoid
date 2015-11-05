@@ -20,19 +20,19 @@ sphero.factory('scales', function( ) {
   // GREEK MODES
   // -----------
   // IONIAN
-  createScale([0, 2, 4, 5, 7, 9, 11]);
+  createScale([0, 2, 4, 5, 7, 9, 11], true );
   // DORIAN
-  createScale([0, 2, 3, 5, 7, 9, 10]);
+  createScale([0, 2, 3, 5, 7, 9, 10], true );
   // PHRYGIAN
-  createScale([0, 1, 3, 5, 7, 8, 10]);
+  createScale([0, 1, 3, 5, 7, 8, 10], true );
   // LYDIAN
-  createScale([0, 2, 4, 5, 7, 9, 10]);
+  createScale([0, 2, 4, 5, 7, 9, 10], true );
   // MIXOLYDIAN
-  createScale([0, 2, 4, 6, 7, 9, 11]);
+  createScale([0, 2, 4, 6, 7, 9, 11], true );
   //AEOLIAN
-  createScale([0, 2, 3, 5, 7, 8, 10]);
+  createScale([0, 2, 3, 5, 7, 8, 10], true );
   //LOCRIAN
-  createScale([0, 1, 3, 5, 6, 8, 10]);
+  createScale([0, 1, 3, 5, 6, 8, 10], true );
   // -----------
   // ACOUSTIC SCALE
   createScale([0, 2, 4, 6, 7, 9, 10], true);

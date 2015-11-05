@@ -12,29 +12,41 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
 
   var gameEnded = false;
   var eventQueue = [];
+  var ms = Math.pow( 10, -3 );
+  var k = Math.pow( 10, 3 );
+  var animationTime = 125 * ms;
+  var lastScheduledAnimation = game.context.currentTime;
+  var scheduleWindowTime = 75 * ms;
+  var rescheduleTime = 25 * ms;
+  var turnCounter = 0;
   var checkQueue = function () {
-    var queued = eventQueue.shift( );
-    if( queued ) {
-      if( queued.event === 'state' ) {
-        setTimeout( checkQueue, game.updateBoard( queued.data ) );
-      } else if( queued.event === 'ended' ) {
-        game.ended( queued.data );
-      } else if ( queued.event === 'put' ) {
-        setTimeout( checkQueue, game.put( queued.data ) );
-      } else if ( queued.event === 'removed' ) {
-        setTimeout( checkQueue, game.removed( queued.data) );
-      } else if ( queued.event === 'moved') {
-        setTimeout( checkQueue, game.moved( queued.data ) );
-      } else if ( queued.event === 'suspended') {
-        setTimeout( checkQueue, game.suspended( queued.data ));
-      } else if ( queued.event === 'rotated' ) {
-        setTimeout( checkQueue, game.rotated( queued.data ));
-      } else if ( queued.event === 'fell' ) {
-        setTimeout( checkQueue, game.fell( queued.data ));
+    d3.timer( checkQueue, rescheduleTime * k );
+    var startTime = game.context.currentTime;
+    while( lastScheduledAnimation + animationTime < startTime + scheduleWindowTime ) {
+      var queued = eventQueue.shift();
+      var delay = ( lastScheduledAnimation + animationTime - game.context.currentTime ) * k;
+      if (queued && queued.event !== 'state' && queued.event !== 'suspended' ) {
+        d3.timer( game.animate[queued.event].bind(null, queued.data), delay );
+        game.musical[queued.event](queued.data, lastScheduledAnimation + animationTime);
+      } else {
+        if (queued) {
+          if( queued.event === 'state' ) {
+            d3.timer( game.updateBoard.bind(null, queued.data), delay );
+          } else if( queued.event === 'suspended' ) {
+            d3.timer( game.animate[ queued.event ].bind( null, queued.data ), delay );
+          }
+        }
+        game.musical.sequence( lastScheduledAnimation + animationTime );
+        d3.timer(game.animate.sequence, delay );
       }
-    } else {
-      setTimeout( checkQueue, 0);
+      if (turnCounter % 8 === 0) {
+        game.musical.indicator( lastScheduledAnimation + animationTime);
+        d3.timer(game.animate.indicator, delay );
+      }
+      lastScheduledAnimation += animationTime;
+      turnCounter++;
     }
+    return true;
   };
 // put, fell, removed have a valence property [MIN, MAX]
   checkQueue();
@@ -58,7 +70,6 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
     // either with just color or oscillation
       game.showTurnChange(); 
     });
-    
   }
 
   document.getElementById("game").addEventListener('mousedown', function (mouseDownEvent) {
@@ -73,7 +84,6 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
   }, false);
 
   socket.on('state', function (data) {
-    console.log( 'updateBoard: ', data);
     eventQueue.push({
       event: 'state',
       data: data
@@ -109,7 +119,6 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
   });
 
   socket.on('suspended', function (data) {
-    console.log( data.id + " suspended");
     eventQueue.push( {
       event: 'suspended',
       data: data
@@ -124,7 +133,6 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
   });
 
   socket.on('fell', function (data) {
-    console.log( data.id + " fell");
     eventQueue.push( {
       event: 'fell',
       data: data

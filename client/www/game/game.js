@@ -1,4 +1,4 @@
-sphero.factory('game', ['scales', function (scales) {
+sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
   var gameDomElement;
   var svg;
   var background;
@@ -25,6 +25,16 @@ sphero.factory('game', ['scales', function (scales) {
   3: ["#787b8c", "#b2b5c3", "#525460"] }; // light gray #b2b5c3 dark gray #525460
 
   var radius;
+
+  var context = new AudioContext( );
+  var sounds;
+  var scale;
+  var chords;
+  var chord;
+  var notes;
+  var tracks;
+  var filter;
+  var lastSequenced;
 
   var setSize = function () {
     gameWidth = gameDomElement.offsetWidth || window.innerWidth;
@@ -69,7 +79,7 @@ sphero.factory('game', ['scales', function (scales) {
   };
 
   var updateBoard = function ( data ) {
-    var duration = 50;
+    var duration = 10;
     var spheres = d3.select('#grid').selectAll('.piece')
       .data( data, function (d) {
         return d.id;
@@ -107,9 +117,8 @@ sphero.factory('game', ['scales', function (scales) {
       .style("fill", function (d) {
         return colors[d.state][0];
       });
-
     spheres.exit().remove();
-    return duration;
+    return true;
   };
 
   var getPosition = function (mouseX, mouseY) {
@@ -146,11 +155,11 @@ sphero.factory('game', ['scales', function (scales) {
     };
   };
 
-  var put = function (data) {
+  var animatePut = function (data) {
     var duration;
     if (data.success) {
-      duration = 100;
-      d3.select("#grid").append("circle").datum( {coordinates: data.coordinates, id: data.id, state: data.state} )
+      duration = 125;
+      d3.select("#grid").append("circle").datum( {coordinates: data.coordinates, id: data.id, state: data.state, valence: data.valence} )
       .attr("r", 0)
       .attr("class", function (d) { return d.state + " piece"; })
       .style("fill", "white")
@@ -166,9 +175,8 @@ sphero.factory('game', ['scales', function (scales) {
       .filter( function (d) {
         return d.coordinates.x === data.coordinates.x && d.coordinates.y === data.coordinates.y;
       });
-      console.log('sphere size: ', sphere);
       if (sphere.size() === 1) {
-        duration = 200
+        duration = 125
         var numPositions = Math.floor(100 + (Math.random() * 5));
         var vibrationRange = 2 * Math.abs( 100/(gridSize * 2) - 100/(gridSize*(2 + wiggleRoom)) );
         for (var i = 0; i < numPositions; i++) {
@@ -187,41 +195,124 @@ sphero.factory('game', ['scales', function (scales) {
             return current + Math.random() * vibrationRange - (vibrationRange/2) + "%";
           });
         }
-
         sphere
         .transition()
         .duration(duration/(numPositions + 1))
         .ease("sin")
         .attr("cx", getSvgPosition(data.coordinates).x)
         .attr("cy", getSvgPosition(data.coordinates).y)
-
       } else {
-        duration = 100;
+        duration = 1000;
         sphere = d3.select("#grid").append("circle").datum( { id: NaN } )
         .attr("r", 0)
         .attr("class", "blip")
-        .style("fill", "black")
+        .style("fill", "white")
         .attr("cx", getSvgPosition(data.coordinates).x)
         .attr("cy", getSvgPosition(data.coordinates).y)
         .transition()
         .duration(duration/2)
         .ease("elastic")
-        .attr("r", Number(radius.slice(0, -1)) * 0.5 + "%" )
-
+        .attr("r", Number(radius.slice(0, -1)) * 0.85 + "%" )
         .transition()
         .duration(duration/2)
         .ease("linear")
         .style("fill", "black")
-        // .attr("r", 0)
         .remove();
       }
     }
-
-    return duration + 25;
+    return true;
   };
+  var musicalPut = function (data, when) {
+    if (data.success) {
+      // trigger put sound
+      var neighbors = d3.selectAll('.piece').filter( function(d) {
+        return (d.coordinates.x === data.coordinates.x + 1 && d.coordinates.y === data.coordinates.y) ||
+          (d.coordinates.x === data.coordinates.x - 1 && d.coordinates.y === data.coordinates.y) ||
+          (d.coordinates.x === data.coordinates.x && d.coordinates.y === data.coordinates.y + 1) ||
+          (d.coordinates.x === data.coordinates.x && d.coordinates.y === data.coordinates.y - 1); 
+      });
+      if (neighbors.length === 1 && data.valence === 1) {
+        notes[data.id] = scale[ Math.floor( Math.random() * scale.length)] + 36;
+      } else {
+        var neighborIndex = Math.floor( Math.random() * neighbors.size() );
+        neighbors.each( function (d, i) {
+          if (i===neighborIndex) {
+            var choice = Math.random();
+            var step;
+            var sign = Math.random() <= .5 ? 1 : -1; 
+            if ( choice <= .25 ) {
+              step = 4;
+            } else if ( choice <= .5 ) {
+              step = 3;
+            } else if ( choice <= .75 ) {
+              step = 2;
+            } else if ( choice <= .9 ) {
+              step = 1;
+            } else if ( choice <= .95 ) {
+              step = 5;
+            } else if ( choice <= .975 ) {
+              step = 6;
+            } else {
+              step = 7;
+            }
+            var neighborNote = notes[ d.id ] % 12;
+            var neighborOctave = notes[ d.id ] - neighborNote;
+            var noteOctave = neighborOctave;
+            var neighborNoteIndex = scale.indexOf(neighborNote);
+            var noteIndex = neighborNoteIndex + step * sign;
+            if (noteIndex >= scale.length ) {
+              noteOctave += 12;
+              noteIndex -= scale.length;
+            } else if (noteIndex < 0) {
+              noteOctave -= 12;
+              noteIndex += scale.length;
+            }
+            notes[data.id] = noteOctave + scale[noteIndex];
+            if (notes[data.id] < 12) {
+              notes[data.id] = 12;
+            }
+            if (notes[data.id] > 72) {
+              notes[data.id] = 72;
+            }
+          }
+        });
+      }
+      if( notes[ data.id ] !== undefined && !isNaN( notes[ data.id ]) ) {
+        sounds.put.start( when, notes[data.id], data.valence );
+      }
+      if (data.valenceMinMax[1] >= sounds.rotatorDrones.length) {
+        if (chord.length > 0 ) {
+          sounds.rotatorDrones.push(context.createDroneElement( chord.splice( Math.floor( Math.random() * chord.length), 1)[0] ) );
+          sounds.rotatorDrones[sounds.rotatorDrones.length - 1].connect(tracks.rotatorDrones);
+          sounds.rotatorDrones[sounds.rotatorDrones.length - 1].start( when );
+        }
+      } 
+    } else {
+      var sphere = d3.select("#grid").selectAll(".piece")
+      .filter( function (d) {
+        return d.coordinates.x === data.coordinates.x && d.coordinates.y === data.coordinates.y;
+      });
+      if (sphere.size() === 1) {
+        sphere.each( function (d) {
+          sounds.shake.start(
+            when,
+            notes[d.id],
+            d.valence
+          );
+        });
+      } else {
+        // trigger 'off' sound
+        sounds.off.start(
+          when, 
+          scale[ Math.floor( Math.random() * scale.length ) ] + 36 + Math.floor( Math.random() * 2 ) * 12,
+          data.coordinates.x + data.coordinates.y
+        );
+      }
+    }
+  }; 
 
-  var removed = function (data) {
-    var duration = 100;
+  var animateRemoved = function (data) {
+    var duration = 125;
     var sphere = d3.select("#grid").selectAll(".piece").filter( function (d) { return d.id === data.id });
     sphere
 //    .style("stroke", colors["A"][1])
@@ -237,15 +328,21 @@ sphero.factory('game', ['scales', function (scales) {
     .ease("linear")
     .attr("r", 0)
     .remove();
-
-    return duration + 25;
+    return true;
   };
-
-  var moved = function (data) {
-    var duration = 100;
-
+  var musicalRemoved = function (data, when) {
+    sounds.removed.start( when, notes[data.id], data.valence );
+    if (sounds.rotatorDrones.length - 1 > data.valenceMinMax[1] ) {
+      var drone = sounds.rotatorDrones.pop();
+      console.log( drone.note );
+      chord.push( drone.note );
+      drone.stop( when );
+    }
+    delete notes[data.id];
+  };
+  var animateMoved = function (data) {
+    var duration = 125;
     var sphere = d3.select("#grid").selectAll(".piece").filter( function (d) { return d.id === data.id } );
-
     sphere.transition()
     .duration( duration * .15 )
     .ease("cubic")
@@ -258,67 +355,58 @@ sphero.factory('game', ['scales', function (scales) {
     .transition()
     .duration( duration * 0.15 )
     .ease("elastic")
-    .attr("r", radius)
-    // .each('end', function( d ) {
-    //   elements[ d.id ].removed.disconnect();
-    //   elements[ d.id ].removed =
-    //     context.createRemovedElement( elements[ d.id ].midiNote, data.valence );
-    //   elements[ d.id ].removed.connect( filter );
-    // });
-
-
+    .attr("r", radius);
     sphere.datum( {id: data.id, state: data.state, coordinates: data.to } );
-
-    return duration + 25;
+    return true;
   };
-
-  var fell = function (data) {
-    var duration = 200;
-
+  var musicalMoved = function (data, when) {
+    sounds.moved.start( when, notes[data.id], data.valence );
+  };
+  var animateFell = function (data) {
+    var duration = 125;
     var sphere = d3.select("#grid").selectAll(".piece").filter( function (d) { return d.id === data.id } );
-
     sphere.transition()
     .duration( duration )
     .ease("elastic")
     .attr("cx", getSvgPosition(data.to).x )
     .attr("cy", getSvgPosition(data.to).y )
+<<<<<<< HEAD
+    .attr("r", radius);
+=======
     .attr("r", radius)
-    // .each( 'end', function( d ) {
-    //   elements[ d.id ].removed.disconnect();
-    //   elements[ d.id ].removed =
-    //     context.createRemovedElement( elements[ d.id ].midiNote, data.valence );
-    //   elements[ d.id ].removed.connect( filter );
-    // });
-
-
+>>>>>>> Music ready
     sphere.datum( {id: data.id, state: data.state, coordinates: data.to } );
-
-    return duration + 50;
-
-  }
-
-  var suspended = function (data) {
-    var duration = 500 + Math.random() * 100;
+    return true;
+  };
+  var musicalFell = function (data, when) {
+    sounds.fell.start( when, notes[data.id], data.valence);
+    if (data.valenceMinMax[1] >= sounds.rotatorDrones.length ) {
+      if (chord.length > 0 ) {
+        sounds.rotatorDrones.push( context.createDroneElement( chord.splice( Math.floor( Math.random() * chord.length ), 1)[0] ) );
+        sounds.rotatorDrones[sounds.rotatorDrones.length - 1].connect(tracks.rotatorDrones);
+        sounds.rotatorDrones[sounds.rotatorDrones.length - 1].start( when );        
+      }
+    }
+  };
+  var animateSuspended = function (data) {
+    var duration = 125;
     var sphere = d3.select("#grid").selectAll(".piece").filter( function (d) { return d.id === data.id} );
+    sphere.transition()
+    .duration(duration * 0.5)
+    .ease("sin")
+    .attr("r",  Number( radius.slice(0, -1)) * 0.7 + "%")
+    .style("fill", colors[data.state][1])
+    .transition()
+    .duration(duration * 0.5)
+    .ease("sin")
+    .style("fill", colors[data.state][0])
+    .attr("r", Number( radius.slice(0, -1)) * 0.8 + "%");
+    return true;
+  };
 
-    var getSmaller = function () {
-      sphere.transition()
-      .duration(duration * 0.5)
-      .ease("sin")
-      .attr("r",  Number( radius.slice(0, -1)) * 0.7 + "%")
-      .style("fill", colors[data.state][1])
-      .transition()
-      .duration(duration * 0.5)
-      .ease("sin")
-      .style("fill", colors[data.state][0])
-      .attr("r", Number( radius.slice(0, -1)) * 0.8 + "%")
-    };
-    getSmaller();
-    return 0;
-  }
-
-  var rotated = function (data) {
-    var duration = 200;
+  var animateRotated = function (data) {
+    data = data.rotators;
+    var duration = 125;
     var antiClockwiseAngle = (Math.PI/2) * 1.35;
     var antiClockwiseSteps = 90 * 1.25;
     var antiClockwiseResolution = antiClockwiseAngle/antiClockwiseSteps;
@@ -327,7 +415,6 @@ sphero.factory('game', ['scales', function (scales) {
     var clockwiseSteps = 90 * .25;
     var clockwiseResolution = clockwiseAngle/clockwiseSteps;
     var clockwiseDuration = duration * .35;
-
     var spheres = d3.select("#grid").selectAll(".piece")
     .filter( function (d) {
       var mid, low, high;
@@ -353,9 +440,7 @@ sphero.factory('game', ['scales', function (scales) {
       }
       return true;
     });
-
     var transition = spheres;
-
     var rotateTheta = function (x, y, theta) {
       return {
         x: x * Math.cos(theta) - y * Math.sin(theta),
@@ -374,7 +459,6 @@ sphero.factory('game', ['scales', function (scales) {
                   return getSvgPosition(d.coordinates).y;
                 });
     }
-
     for ( var i = 0; i >= clockwiseAngle; i += clockwiseResolution ) {
       transition = transition.transition().duration( clockwiseDuration/clockwiseSteps ).ease('linear')
                 .attr("cx", function (d) {
@@ -398,10 +482,51 @@ sphero.factory('game', ['scales', function (scales) {
         });
       }
     }
-
-    return duration + 50;
-  }
-
+    return true;
+  };
+  var musicalRotated = function (data, when) {
+    while (sounds.rotatorDrones.length - 1 > data.valenceMinMax[1] ) {
+      var drone = sounds.rotatorDrones.pop();
+      drone.stop( when );
+    }
+    var droneNotes = [];
+    sounds.rotatorDrones.forEach( function( drone, i ) {
+      droneNotes.push( [ drone.note, i ] );
+    });
+    var persistentNotes = droneNotes.filter( function( ) {
+      return Math.random( ) < 0.5;
+    }).map( function( tuple ) {
+      return tuple[ 0 ];
+    });
+    var startIndex = Math.floor( Math.random( ) * chords.length );
+    for( var j = 0; j < chords.length; j++ ) {
+      var aChord = chords[ ( j + startIndex ) % chords.length ];
+      var valid = true;
+      for( var i = 0; i < persistentNotes.length; i++ ) {
+        if( aChord.indexOf( persistentNotes[ i ]) < 0 ) {
+          valid = false;
+        }
+      }
+      if( valid ) {
+        chord = aChord;
+        break;
+      }
+    }
+    if( j === chords.length ) {
+      chord = chords[ Math.floor( Math.random( ) * chords.length ) ];
+    }
+    droneNotes.forEach( function( tuple ) {
+      var noteIndex = chord.indexOf( tuple[ 0 ] );
+      if( noteIndex > 0 ) {
+        chord.splice( noteIndex, 1 );
+      } else {
+        if( chord.length > 0 ) {
+          sounds.rotatorDrones[ tuple[ 1 ] ]
+            .rotate( when, chord.splice( Math.floor( Math.random( ) * chord.length ), 1 )[ 0 ] );
+        }
+      }
+    });
+  };
   var showBorder = function () {
     var borderSpheres = d3.select('#grid').selectAll(".border").data( function () {
       var data = [];
@@ -502,44 +627,105 @@ sphero.factory('game', ['scales', function (scales) {
 
       });
   };
-
-  var indicatorOscillate = function () {
+  var animateIndicator = function () {
     duration = 1000;
-
     indicator.transition()
-    .duration(duration * 0.5)
-    .ease("sin")
-    .attr("r",  radius)
+    .duration(duration / 8)
+    .ease("elastic")
+    .attr("r",  Number( radius.slice( 0, -1 ) ) * 0.85 + '%' )
     .transition()
-    .duration(duration * 0.5)
-    .ease("sin")
-    .attr("r", anchorRadius)
-     .each( "end", indicatorOscillate);
+    .duration(duration * 7 / 8 )
+    .ease("elastic")
+    .attr("r", radius );
+    return true;
   };
-
-  var i = 0;
-  var particle = function () {
-    var m = d3.mouse(this);
-    svg.insert("circle")
-        .attr("cx", m[0])
-        .attr("cy", m[1])
-        .attr("r", 1e-6)
-        .attr("class", "particle")
-        .style("fill", "none")
-        .style("stroke-width", "2.5px")
-        .style("stroke", d3.hsl((i = (i + 1) % 360), 1, .5))
-        .style("stroke-opacity", 1)
-      .transition()
-        .duration(2000)
-        .ease(Math.sqrt)
-        .attr("r", 100)
-        .style("stroke-opacity", 1e-6)
-       .remove();
-
-    d3.event.preventDefault();
+  var musicalIndicator = function( when ) {
+    sounds.indicator.start( when );
   };
-
-
+  var animateSequence = function() {
+    var duration = 125;
+    if( lastSequenced !== undefined ) {
+      var sphere = d3.selectAll( '.piece' ).filter( function( d ) { 
+        return d.id == lastSequenced;
+      });
+      sphere.transition( )
+        .duration( duration / 4 )
+        .ease( 'cubic-in-out' )
+        .attr( 'r', Number( radius.slice( 0, -1 ) ) * 0.9 + '%' )
+        // .style( 'fill', function( d ) {
+        //   return colors[ d.state ][ 1 ];
+        // })
+        .transition( )
+        .duration( duration * 3 / 4 )
+        .ease( 'elastic' )
+        .attr( 'r', radius );
+        // .style( 'fill', function( d ) {
+        //   return colors[ d.state ][ 0 ];
+        // });
+    }
+    return true;
+  };
+  var musicalSequence = function ( when ) {
+    console.log( 'in musical sequence, lastSequenced: ', lastSequenced );
+    if (lastSequenced === undefined) {
+      var IDs = Object.keys(notes);
+      lastSequenced = IDs[ Math.floor( Math.random() * IDs.length) ];
+      if( lastSequenced !== undefined ) {
+        d3.selectAll( '.piece' ).each( function( d ) {
+          if( d.id == lastSequenced && notes[ d.id ] !== undefined && d.valence ) {
+            sounds.sequence.start( when, notes[ d.id ], d.valence );
+          }
+        });
+      }
+    } else {
+      var sphere = d3.selectAll( '.piece' ).filter( function( d ) {
+        return d.id == lastSequenced;
+      });
+      if( sphere.size( ) === 1 ) {
+        sphere.each( function( d ) {
+          if( d.id == lastSequenced ) {
+            var choice = Math.floor( Math.random() * 4 );
+            d3.selectAll('.piece').each( function (e) {
+              if (choice === 0) {
+                if (e.coordinates.x === d.coordinates.x && e.coordinates.y === d.coordinates.y + 1 ) {
+                  if( e.state !== 'A' && notes[ e.id ] !== undefined && e.valence ) {
+                    sounds.sequence.start( when, notes[ e.id ], e.valence );
+                    lastSequenced = e.id;
+                  }
+                }
+              } else if (choice === 1) {
+                if (e.coordinates.x === d.coordinates.x + 1 && e.coordinates.y === d.coordinates.y) {
+                  if( e.state !== 'A' && notes[ e.id ] !== undefined && e.valence ) {
+                    sounds.sequence.start( when, notes[ e.id ], e.valence );
+                    lastSequenced = e.id;
+                  }
+                }
+              } else if (choice === 2) {
+                if (e.coordinates.x === d.coordinates.x && e.coordinates.y === d.coordinates.y - 1 ) {
+                  if( e.state !== 'A' && notes[ e.id ] !== undefined && e.valence ) {
+                    sounds.sequence.start( when, notes[ e.id ], e.valence );
+                    lastSequenced = e.id;
+                  }
+                }
+              } else {
+                if (e.coordinates.x === d.coordinates.x - 1 && e.coordinates.y === d.coordinates.y) {
+                  if( e.state !== 'A' && notes[ e.id ] !== undefined && e.valence ) {
+                    sounds.sequence.start( when, notes[ e.id ], e.valence );
+                    lastSequenced = e.id;
+                  }
+                }
+              }
+            });
+            if( lastSequenced == d.id ) {
+              lastSequenced = undefined;
+            }
+          }
+        });
+      } else {
+        lastSequenced = undefined;
+      }
+    }
+  };
   var init = function (element, size) {
     gameDomElement = element || document.getElementById("game");
     gridSize = size || 12;
@@ -567,8 +753,49 @@ sphero.factory('game', ['scales', function (scales) {
     indicator = grid.append("circle").datum( {id: null} ).attr("r", anchorRadius).attr("cx", "50%").attr("cy", "50%")
     .style("fill", colors[gameInfo.currentTurn][2]).attr("class", "indicator").attr("id", "indicator");
     setSize();
+
+    // initialize music
+    sounds = { 
+      put: context.createPutElement(),
+      shake: context.createShakeElement(),
+      off: context.createOffElement(),
+      removed: context.createRemovedElement(),
+      moved: context.createMovedElement(),
+      fell: context.createFellElement(),
+      indicator: context.createIndicatorElement(),
+      sequence: context.createSequenceElement(),
+      rotatorDrones: []
+    };
+    scale = scales[ Math.floor(Math.random() * scales.length) ];
+    chords = findChords( scale );
+    chord = chords[ Math.floor( Math.random() * chords.length)];
+    sounds.rotatorDrones[0] = context.createDroneElement( chord.splice( Math.floor(Math.random() * chord.length), 1)[0] ); 
+    notes = {};
+    tracks = {};
+    filter = context.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 10000;
+    for (var key in sounds) {
+      tracks[key] = context.createGain();
+      if (key !== 'rotatorDrones') {
+        sounds[key].connect(tracks[key]);
+      } else {
+        sounds[key][0].connect(tracks[key]);
+      }
+      tracks[key].connect(filter);
+    }
+    tracks.rotatorDrones.gain.value = 0.75;
+    tracks.moved.gain.value = 2;
+    tracks.fell.gain.value = 0.5;
+    tracks.indicator.gain.value = 1.5;
+    tracks.off.gain.value = 0.25;
+    tracks.shake.gain.value = 0.25;
+    var compressor = context.createDynamicsCompressor( );
+    filter.connect( compressor );
+    compressor.connect( context.destination );
+
+    sounds.rotatorDrones[0].start(context.currentTime);
     showBorder();
-    indicatorOscillate();
     // svg.insert("circle")
     //     .attr("cx", "50%")
     //     .attr("cy", "50%")
@@ -699,21 +926,33 @@ sphero.factory('game', ['scales', function (scales) {
     // sequence( );
   };
   return {
-
+    context: context,
     gameInfo: gameInfo,
     colors: colors,
-
     init: init,
     setSize: setSize,
     showTurnChange: showTurnChange,
     getPosition: getPosition,
     updateBoard: updateBoard,
-    put: put,
-    removed: removed,
-    moved: moved,
-    fell: fell,
-    suspended: suspended,
-    rotated: rotated
+    animate: {
+      put: animatePut,
+      removed: animateRemoved,
+      moved: animateMoved,
+      fell: animateFell,
+      suspended: animateSuspended,
+      rotated: animateRotated,
+      indicator: animateIndicator,
+      sequence: animateSequence
+    },
+    musical: {
+      put: musicalPut,
+      removed: musicalRemoved,
+      moved: musicalMoved,
+      fell: musicalFell,
+      rotated: musicalRotated,
+      indicator: musicalIndicator,
+      sequence: musicalSequence
+    }
   };
 
 }]);

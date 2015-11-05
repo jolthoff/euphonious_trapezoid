@@ -12,7 +12,7 @@ sphero.factory( 'findChords', function( ) {
     // choose two notes that are less than 2 indices apart   
     // in the notes array    
     var chords = []
-    for( var i = ( 1 << 8 ); i < ( 1 << notes.length ); i++ ) {
+    for( var i = ( 1 << 8 ) - 1; i < ( 1 << ( notes.length ) ) - 1; i++ ) {
       var chord = [];
       for( var j = 0; j < notes.length; j++ ) {
         if( ( i >> j ) % 2 === 1 ) {

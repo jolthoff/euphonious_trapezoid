@@ -1,4 +1,4 @@
-window.AudioContext.prototype.createMoveElement = function( ) {
+window.AudioContext.prototype.createMovedElement = function( ) {
   var context = this;
   var ms = Math.pow( 10, -3 );
   var element = {};
