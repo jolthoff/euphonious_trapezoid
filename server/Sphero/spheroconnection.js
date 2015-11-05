@@ -12,7 +12,7 @@ var invite = function(io, data) {
 };
 
 var privateGame = function(io, data) {
-  var gameId = (1 +Math.random() * 100000).toString();
+  var gameId = (1 + Math.random() * 100000).toString();
 
 
   activeUsers[this.id].profile = data;
@@ -50,7 +50,7 @@ var grabProfile = function(io, data) {
 var host = function(io, data) {
   // Create a unique Socket.IO Room
   if (!activeUsers[this.id].joined) {
-    var gameId = (1 +Math.random() * 100000).toString();
+    var gameId = (1 + Math.random() * 100000).toString();
 
     // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
     // Join the Room and wait for the players
@@ -89,7 +89,7 @@ var single = function(io, data) {
   // grab profile of user starting a single game event
   activeUsers[this.id] = { profile: data, joined: false };
   if (!activeUsers[this.id].joined) {
-    var gameId = (1 +Math.random() * 100000).toString();
+    var gameId = (1 + Math.random() * 100000).toString();
     this.join(gameId);
 
     //hold on to gameId information to force user out when they leave the game window
