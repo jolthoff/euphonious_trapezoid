@@ -91,6 +91,7 @@ var single = function(io, data) {
   if (!activeUsers[this.id].joined) {
     var gameId = (1 +Math.random() * 100000).toString();
     this.join(gameId);
+
     activeUsers[this.id].joined = gameId;
     playersInRoom[gameId] = [];
     playersInRoom[gameId].push([data, data.userName]);
