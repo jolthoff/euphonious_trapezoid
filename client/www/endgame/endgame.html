@@ -3,7 +3,7 @@
     <li>Place: {{placeObj[place]}}</li>
     <li>Global Ranking: {{me.ranking}}</li>
   </ul>
-  <ul class="player-list" ng-repeat="playerName in endGameArray track by $index">
-    <li><span>{{playerName}}</span><span><button class="button button-stable button-clear" ng-click="addFriends(playerName)">friend</button></span></li>
+  <ul  ng-repeat="playerName in endGameArray track by $index">
+    <li class="players"><span class="player">{{playerName}}</span><span><button class="player-button" ng-click="addFriends(playerName)">friend</button></span></li>
   </ul>
 </div>
