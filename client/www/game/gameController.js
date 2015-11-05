@@ -155,7 +155,7 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
 
   $scope.showPopup = function(playersArray, addFriendFunc) {
     $scope.endGameArray = []; // an array of the player usernames in order of current game performance
-    console.log('in popup ==============', playersArray, $scope.endGameArray);
+    console.log('in popup ==============', playersArray);
     $scope.me = null;
     $scope.dupObj = {};
     $scope.place = null;
@@ -179,6 +179,7 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
         }
       }
     }
+    console.log('endGameArray ============', $scope.endGameArray);
     // //allow player to friend other players
     // $scope.friend = function(otherPlayer) {
     //   Auth.addFriend(otherPlayer, player.profile.id);
