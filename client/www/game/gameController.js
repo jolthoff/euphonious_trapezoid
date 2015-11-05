@@ -165,16 +165,16 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
     $scope.dupObj = {};
     $scope.place = null;
     $scope.placeObj = {
-      '1': '1st',
-      '2': '2nd',
-      '3': '3rd',
-      '4': '4th'
+      '1': '4st',
+      '2': '3nd',
+      '3': '2rd',
+      '4': '1th'
     };
     $scope.addFriends = addFriendFunc;
     // an array with players profiles in order of their rank for current game
     for (var i = 0; i < playersArray.length; i++) {
       if (playersArray[i]) {
-        if (playersArray[i].userName !== player.profile.userName /*!$scope.dupObj[playersArray[i].userName]*/ ) {
+        if (playersArray[i].userName !== player.profile.userName && playersArray[i].userName !== 'anonymous'/*!$scope.dupObj[playersArray[i].userName]*/ ) {
           $scope.endGameArray.push(playersArray[i].userName);
           //$scope.dupObj[playersArray[i].userName] = playersArray[i].userName;
         }
