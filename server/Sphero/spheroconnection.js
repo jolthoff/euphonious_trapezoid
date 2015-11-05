@@ -79,7 +79,7 @@ var join = function(io, data) {
       playersInRoom[gameQueue[0]].push([data, data.userName]);
 
       console.log("Players in room at ", gameQueue[0], " are ", playersInRoom[gameQueue[0]]);
-      if(Object.keys(io.nsps['/'].adapter.rooms[gameQueue[0]]).length === 2) {
+      if(Object.keys(io.nsps['/'].adapter.rooms[gameQueue[0]]).length === 4) {
         startGame(gameQueue.shift(), io);
       }
     } else {
