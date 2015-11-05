@@ -30,7 +30,7 @@ var joinPrivate = function(io, data) {
   playersInRoom[data.gameID] = playersInRoom[data.gameID] || [];
   playersInRoom[data.gameID].push([data.profile, data.profile.userName]);
   console.log("the sockets connected to room are ", Object.keys(io.nsps['/'].adapter.rooms[data.gameID]));
-  if(Object.keys(io.nsps['/'].adapter.rooms[data.gameID]).length === 2) {
+  if(Object.keys(io.nsps['/'].adapter.rooms[data.gameID]).length === 3) {
     startGame(data.gameID, io);
   }
 

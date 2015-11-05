@@ -370,11 +370,7 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
     .ease("elastic")
     .attr("cx", getSvgPosition(data.to).x )
     .attr("cy", getSvgPosition(data.to).y )
-<<<<<<< HEAD
     .attr("r", radius);
-=======
-    .attr("r", radius)
->>>>>>> Music ready
     sphere.datum( {id: data.id, state: data.state, coordinates: data.to } );
     return true;
   };
@@ -419,18 +415,18 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
     .filter( function (d) {
       var mid, low, high;
       low = 0;
-      high = data.rotators.length - 1;
+      high = data.length - 1;
       mid = Math.floor( (low + high)/2 )
       console.log('.piece data: ', d);
-      while ( data.rotators[mid].id !== d.id) {
+      while ( data[mid].id !== d.id) {
         if ( low >= high ) {
           return false;
-        } else if (data.rotators[mid].id < d.id) {
-          if( mid === data.rotators.length ) {
+        } else if (data[mid].id < d.id) {
+          if( mid === data.length ) {
             return false;
           }
           low = mid + 1;
-        } else if (data.rotators[mid].id > d.id) {
+        } else if (data[mid].id > d.id) {
           if (mid === 0) {
             return false;
           }
@@ -688,28 +684,28 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
             d3.selectAll('.piece').each( function (e) {
               if (choice === 0) {
                 if (e.coordinates.x === d.coordinates.x && e.coordinates.y === d.coordinates.y + 1 ) {
-                  if( e.state !== 'A' && notes[ e.id ] !== undefined && e.valence ) {
+                  if( e.state !== 'A' && notes[ e.id ] !== undefined && !isNaN( notes[ e.id ] ) && e.valence ) {
                     sounds.sequence.start( when, notes[ e.id ], e.valence );
                     lastSequenced = e.id;
                   }
                 }
               } else if (choice === 1) {
                 if (e.coordinates.x === d.coordinates.x + 1 && e.coordinates.y === d.coordinates.y) {
-                  if( e.state !== 'A' && notes[ e.id ] !== undefined && e.valence ) {
+                  if( e.state !== 'A' && notes[ e.id ] !== undefined && !isNaN( notes[ e.id ] ) && e.valence ) {
                     sounds.sequence.start( when, notes[ e.id ], e.valence );
                     lastSequenced = e.id;
                   }
                 }
               } else if (choice === 2) {
                 if (e.coordinates.x === d.coordinates.x && e.coordinates.y === d.coordinates.y - 1 ) {
-                  if( e.state !== 'A' && notes[ e.id ] !== undefined && e.valence ) {
+                  if( e.state !== 'A' && notes[ e.id ] !== undefined && !isNaN( notes[ e.id ] ) && e.valence ) {
                     sounds.sequence.start( when, notes[ e.id ], e.valence );
                     lastSequenced = e.id;
                   }
                 }
               } else {
                 if (e.coordinates.x === d.coordinates.x - 1 && e.coordinates.y === d.coordinates.y) {
-                  if( e.state !== 'A' && notes[ e.id ] !== undefined && e.valence ) {
+                  if( e.state !== 'A' && notes[ e.id ] !== undefined && !isNaN( notes[ e.id ] ) && e.valence ) {
                     sounds.sequence.start( when, notes[ e.id ], e.valence );
                     lastSequenced = e.id;
                   }
