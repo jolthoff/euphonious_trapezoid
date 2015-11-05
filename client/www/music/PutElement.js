@@ -21,7 +21,11 @@ window.AudioContext.prototype.createPutElement = function( ) {
     var voice = {};
     voice.envelopes = [];
     voice.saw = context.createOscillator( );
-    voice.saw.frequency.value = 440 * Math.pow( 2, ( midiNote - 69 ) / 12 );
+    var fundamental = 440 * Math.pow( 2, ( midiNote - 69 ) / 12 );
+    if( isNaN( fundamental ) ) {
+      fundamental = 440;
+    }
+    voice.saw.frequency.value = fundamental;
     voice.saw.type = 'sawtooth';
     voice.saw.start( context. currentTime );
     voice.sawFilter = context.createBiquadFilter( );
@@ -54,7 +58,7 @@ window.AudioContext.prototype.createPutElement = function( ) {
     voice.sawFilterFrequencyEnvelope = {};
     voice.sawFilterFrequencyEnvelope.attack = {
       time: voice.sawFilterGainEnvelope.attack.time,
-      target: ( 1 + valence * 15 / 8 ) * 440 * Math.pow( 2, ( midiNote - 69 ) / 12 ),
+      target: ( 1 + valence * 15 / 8 ) * fundamental,
       initial: 0
     };
     voice.sawFilterFrequencyEnvelope.decay = voice.sawFilterGainEnvelope.release.time;

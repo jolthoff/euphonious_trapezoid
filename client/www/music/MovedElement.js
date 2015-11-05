@@ -19,6 +19,9 @@ window.AudioContext.prototype.createMovedElement = function( ) {
       midiNote += 12;
     }
     var fundamental = 440 * Math.pow( 2, ( midiNote - 69 ) / 12 );
+    if( isNaN( fundamental ) ) {
+      fundamental = 440;
+    }
     var voice = {};
     voice.envelopes = [];
     voice.sine = context.createOscillator( );

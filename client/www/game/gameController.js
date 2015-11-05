@@ -101,10 +101,15 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
   });
 
   socket.on('put', function(data) {
-    eventQueue.push({
-      event: 'put',
-      data: data
-    });
+    if( data.success ) {
+      eventQueue.push({
+        event: 'put',
+        data: data
+      });
+    } else {
+      game.musical.put( data, game.context.currentTime );
+      game.animate.put( data );
+    }
   });
 
   socket.on('removed', function(data) {
