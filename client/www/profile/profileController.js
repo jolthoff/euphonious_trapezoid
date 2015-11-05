@@ -22,6 +22,11 @@ sphero.controller('profileController', ['$scope', '$window', 'Auth', 'socket', '
       $state.go('profile.loading', { action: 'joinPrivate', gameID: gameID })
     };
 
+    $scope.$on('triggerLeave', function() {
+      console.log("did i trigger a leftGame event");
+      socket.emit('leftGame');
+    });
+
     socket.on('invited', function(data) {
       var found = false;
       for (var i = 0; i < $scope.invites.length; i++) {
