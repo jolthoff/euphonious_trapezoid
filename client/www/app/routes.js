@@ -78,6 +78,11 @@ router.run(function($rootScope, $state, Auth) {
       $state.go('nav');
     }
   });
+  $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){
+    if (fromState.name === 'profile.game' && toState.name !== 'profile.gameover') {
+      $rootScope.$broadcast('triggerLeave');
+    }
+  });
 });
 
 router.config(function Config($httpProvider, jwtInterceptorProvider) {

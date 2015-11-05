@@ -310,10 +310,12 @@ input[type='text'] {
     font-weight: bold;
     text-align: center;
     color: #787b8c;
+    cursor: pointer;
 }
 
 .user-list {
     margin-top: 5vw;
+    cursor: pointer;
 }
 
 .user {
@@ -331,6 +333,8 @@ input[type='text'] {
     font-weight: bold;
     text-align: center;
     color: #787b8c;
+    margin-top: 3rem;
+    cursor: pointer;
 }
 
 .loader {

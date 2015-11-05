@@ -6,19 +6,27 @@ sphero.controller('profileController', ['$scope', '$window', 'Auth', 'socket', '
 
     $scope.invites = [];
 
-
     $scope.home = function() {
       setTimeout(function() {$state.go('nav');}, 500);
     };
+
   	$scope.logout = function() {
   		Auth.destroyCredentials();
       setTimeout(function() {$state.go('nav');}, 500);
   	};
 
+    //Redirect to loading -- sending type of action and
+    // gameID user wants to connect to
     $scope.joinPrivate = function(gameID) {
       console.log(gameID);
       $state.go('profile.loading', { action: 'joinPrivate', gameID: gameID })
     };
+
+    //When $rootScope sends triggerLeave event, socket connections emits leftGame
+    //to remove socket connection from game instance
+    $scope.$on('triggerLeave', function() {
+      socket.emit('leftGame');
+    });
 
     socket.on('invited', function(data) {
       var found = false;

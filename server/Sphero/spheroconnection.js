@@ -7,15 +7,16 @@ var activeUsers = {};
 
 var invite = function(io, data) {
 
-  io.to(data.socketID).emit('invited', {gameID: data.gameID, host: data.host});
+  io.to(data.socketID).emit('invited', { gameID: data.gameID, host: data.host });
 
 };
 
 var privateGame = function(io, data) {
+  var gameId = (1 + Math.random() * 100000).toString();
 
-  var gameId = ((Math.random() * 100000) || 0).toString();
 
   activeUsers[this.id].profile = data;
+  activeUsers[this.id].joined = gameId;
 
   io.to(this.id).emit('hosting', gameId);
   this.join(gameId);
@@ -25,11 +26,12 @@ var privateGame = function(io, data) {
 var joinPrivate = function(io, data) {
 
   this.join(data.gameID);
-  console.log("server heard the game id is ", data.gameID);
-  activeUsers[this.id].joined = true;
+
+  activeUsers[this.id].joined = data.gameID;
+
   playersInRoom[data.gameID] = playersInRoom[data.gameID] || [];
   playersInRoom[data.gameID].push([data.profile, data.profile.userName]);
-  console.log("the sockets connected to room are ", Object.keys(io.nsps['/'].adapter.rooms[data.gameID]));
+
   if(Object.keys(io.nsps['/'].adapter.rooms[data.gameID]).length === 3) {
     startGame(data.gameID, io);
   }
@@ -40,7 +42,7 @@ var grabProfile = function(io, data) {
 
   if (activeUsers[this.id]) {
     activeUsers[this.id] = { profile: data, joined: false };
-    console.log("active user profile is ", activeUsers);
+    io.emit('updateUsers', activeUsers);
   };
 
 };
@@ -48,24 +50,19 @@ var grabProfile = function(io, data) {
 var host = function(io, data) {
   // Create a unique Socket.IO Room
   if (!activeUsers[this.id].joined) {
-    var gameId = ((Math.random() * 100000) || 0).toString();
+    var gameId = (1 + Math.random() * 100000).toString();
+
     // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
     // Join the Room and wait for the players
     activeUsers[this.id].profile = data;
-    activeUsers[this.id].joined = true;
+    activeUsers[this.id].joined = gameId;
 
-    console.log(activeUsers[this.id]);
     this.join(gameId);
 
-    // io.sockets.socket(this.id).emit('hosting', gameId);
     gameQueue.push(gameId);
-
-
-    console.log("DATA RECEIVED FROM HOST EVENT ", data);
 
     playersInRoom[gameId] = [];
     playersInRoom[gameId].push([data, data.userName]);
-    console.log(playersInRoom);
   }
 
 };
@@ -74,14 +71,12 @@ var join = function(io, data) {
   if (!activeUsers[this.id].joined) {
     if (gameQueue[0]) {
 
-      activeUsers[this.id].joined = true;
+      activeUsers[this.id].joined = gameQueue[0];
       this.join(gameQueue[0]);
 
       playersInRoom[gameQueue[0]] = playersInRoom[gameQueue[0]] || [];
-
       playersInRoom[gameQueue[0]].push([data, data.userName]);
 
-      console.log("Players in room at ", gameQueue[0], " are ", playersInRoom[gameQueue[0]]);
       if(Object.keys(io.nsps['/'].adapter.rooms[gameQueue[0]]).length === 2) {
         startGame(gameQueue.shift(), io);
       }
@@ -91,13 +86,19 @@ var join = function(io, data) {
   }
 };
 var single = function(io, data) {
-  var gameId = ((Math.random() * 100000) || 0).toString();
-  this.join(gameId);
-  playersInRoom[gameId] = [];
-  playersInRoom[gameId].push([data, data.userName]);
-  console.log("data from single event is " + data);
-  console.log(playersInRoom);
-  startGame(gameId, io);
+  // grab profile of user starting a single game event
+  activeUsers[this.id] = { profile: data, joined: false };
+  if (!activeUsers[this.id].joined) {
+    var gameId = (1 + Math.random() * 100000).toString();
+    this.join(gameId);
+
+    //hold on to gameId information to force user out when they leave the game window
+    activeUsers[this.id].joined = gameId;
+    playersInRoom[gameId] = [];
+    playersInRoom[gameId].push([data, data.userName]);
+
+    startGame(gameId, io);
+  }
 };
 
 var startGame = function(gameId, io) {
@@ -108,33 +109,33 @@ var startGame = function(gameId, io) {
   for (var i = 0; i < sockets.length; i++) {
     players.push(String(i));
   };
-  console.log("The players are!! ", players);
   var game = new Game();
-
-  console.log("GAME MADE - IT IS " + game);
-
-  if (players.length > 1) {
-    var alreadyPlayed = false;
-
-    var intervalID2 = setInterval( function() {
-      players.push(players.shift());
-      io.to(gameId).emit('turnEnded', { players: players, duration: 1000} );
-      alreadyPlayed = false;
-    }, 1000);
-  }
+  // -- FOR TURN IMPLEMENTATION -- //
+  // if (players.length > 1) {
+  //   var alreadyPlayed = false;
+  // -- Turns commented out for possible future use  -- //
+  // if (players.length > 1) {
+  //   var alreadyPlayed = false;
+  //   var intervalID2 = setInterval( function() {
+  //     players.push(players.shift());
+  //     io.to(gameId).emit('turnEnded', { players: players, duration: 1000} );
+  //     alreadyPlayed = false;
+  //   }, 1000);
+  // }
 
   for (var i = 0; i < sockets.length; i++) {
     var socket = sockets[i];
 
     socket.on('insert', function(event) {
-      if (players.length > 1) {
-        if (event.state === players[0] && !alreadyPlayed) {
-          alreadyPlayed = true;
-          game.insert(event);
-        }
-      } else {
+      // -- FOR TURN IMPLEMENTATION -- //
+      // if (players.length > 1) {
+      //   if (event.state === players[0] && !alreadyPlayed) {
+      //     alreadyPlayed = true;
+      //     game.insert(event);
+      //   }
+      // } else {
         game.insert(event);
-      }
+      // }
     });
     socket.emit('started', {playerNum: i});
     socket.emit('state', game.getState());
@@ -149,8 +150,8 @@ var startGame = function(gameId, io) {
     if( !io.nsps['/'].adapter.rooms[gameId] ) {
       delete playersInRoom[gameId];
       game = null;
+      // clearInterval( intervalID2 ); <--- FOR TURN IMPLEMENTATION
       clearInterval( intervalID );
-      clearInterval( intervalID2 );
     }
   }, 10000 );
 
@@ -167,54 +168,64 @@ var startGame = function(gameId, io) {
     for (var i = 0; i < sockets.length; i++) {
       console.log("socket id is ", sockets[i].id);
       activeUsers[sockets[i].id].joined = false;
+      sockets[i].leave(gameId);
     }
-
-    console.log("player Rank array is ", playerRank);
     delete playersInRoom[gameId];
     game = null;
     clearInterval( intervalID );
-    clearInterval( intervalID2 );
+    // clearInterval( intervalID2 ); <--- FOR TURN IMPLEMENTATION
   });
-
-  console.log("ALL LISTENERS ATTACHED");
 };
 
 module.exports.init = function(io, socket) {
 
+  //Populate activeUsers object with connected socket IDs
   activeUsers[socket.id] = true;
 
   socket.on('host', function(data){
     host.call(socket, io, data);
   });
+
   socket.on('join', function(data) {
     join.call(socket, io, data);
   });
+
   socket.on('single', function(data) {
     single.call(socket, io, data);
   });
+
   socket.on('privateGame', function(data) {
     privateGame.call(socket, io, data);
   });
+
   socket.on('invite', function(data) {
     invite.call(socket, io, data);
   });
+
   socket.on('joinPrivate', function(data) {
     joinPrivate.call(socket, io, data);
   });
+
   socket.on('grabProfile', function(data) {
     grabProfile.call(socket, io, data);
-    io.emit('updateUsers', activeUsers);
   });
+
   socket.on('checkForUsers', function() {
     io.emit('updateUsers', activeUsers);
   });
 
+  //When client sends leftGame event check if activeUsers joined property has the gameID
+  // and that the game instance exists.  If so, remove to socket connection from the room.
+  socket.on('leftGame', function() {
+    if (activeUsers[this.id].joined && io.nsps['/'].adapter.rooms[activeUsers[this.id].joined]) {
+      this.leave(activeUsers[this.id].joined);
+    }
+  });
+
+  //Remove socket id from activeUsers object on disconnect
   socket.on('disconnect', function(){
     delete activeUsers[this.id];
     io.emit('updateUsers', activeUsers);
-
-    console.log('socket id in activeUsers is ', activeUsers[this.id], ' and activeUsers is ', activeUsers);
-    console.log('a user disconnected');
   });
 
 };
