@@ -24,6 +24,10 @@ window.AudioContext.prototype.createOffElement = function( ) {
     // voice.WN.connect( voice.WNGain );
     // voice.WN.start( context.currentTime );
     voice.FMCarrier = context.createOscillator( );
+    var fundamental = 440 * Math.pow( 2, ( midiNote - 69 ) / 12 );
+    if( isNaN( fundamental ) ) {
+      fundamental = 440;
+    }
     voice.FMCarrier.frequency.value = 440 * Math.pow( 2, ( midiNote - 69 ) / 12 );
     voice.FMCarrier.type = 'sawtooth';
     voice.FMCarrier.start( context.currentTime );

@@ -2,6 +2,9 @@ window.AudioContext.prototype.createDroneElement = function( midiNote ) {
   var element = {};
   var context = this;
   var fundamental = 440 * Math.pow( 2, ( midiNote - 69 ) / 12 );
+  if( isNaN( fundamental ) ) {
+    fundamental = 440;
+  }
   element.master = context.createGain( );
   element.master.gain.value = 0;
   element.note = midiNote;

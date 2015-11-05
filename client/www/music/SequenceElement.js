@@ -19,6 +19,9 @@ window.AudioContext.prototype.createSequenceElement = function( ) {
     voice.envelopes = [];
     midiNote = midiNote + Math.random() * 0.1 - 0.05;
     var fundamental = 440 * Math.pow( 2, ( midiNote - 69 ) / 12 );
+    if( isNaN( fundamental ) ) {
+      fundamental = 440;
+    }
     // Create and configure element.carrier
     voice.carrier = context.createOscillator();
     voice.carrier.frequency.value = 3 * fundamental;
