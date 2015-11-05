@@ -205,6 +205,9 @@ module.exports.init = function(io, socket) {
   socket.on('checkForUsers', function() {
     io.emit('updateUsers', activeUsers);
   });
+  socket.on('leftGame', function(){
+    activeUsers[this.id].joined = false;
+  });
 
   socket.on('leftGame', function() {
     console.log("user who submitted left game event is ", activeUsers[this.id].joined);
