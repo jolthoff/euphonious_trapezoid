@@ -117,7 +117,6 @@ var startGame = function(gameId, io) {
   // -- FOR TURN IMPLEMENTATION -- //
   // if (players.length > 1) {
   //   var alreadyPlayed = false;
-
   //   var intervalID2 = setInterval( function() {
   //     players.push(players.shift());
   //     io.to(gameId).emit('turnEnded', { players: players, duration: 1000} );
