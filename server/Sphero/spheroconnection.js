@@ -122,28 +122,28 @@ var startGame = function(gameId, io) {
 
   console.log("GAME MADE - IT IS " + game);
 
-  if (players.length > 1) {
-    var alreadyPlayed = false;
+  // if (players.length > 1) {
+  //   var alreadyPlayed = false;
 
-    var intervalID2 = setInterval( function() {
-      players.push(players.shift());
-      io.to(gameId).emit('turnEnded', { players: players, duration: 1000} );
-      alreadyPlayed = false;
-    }, 1000);
-  }
+  //   var intervalID2 = setInterval( function() {
+  //     players.push(players.shift());
+  //     io.to(gameId).emit('turnEnded', { players: players, duration: 1000} );
+  //     alreadyPlayed = false;
+  //   }, 1000);
+  // }
 
   for (var i = 0; i < sockets.length; i++) {
     var socket = sockets[i];
 
     socket.on('insert', function(event) {
-      if (players.length > 1) {
-        if (event.state === players[0] && !alreadyPlayed) {
-          alreadyPlayed = true;
-          game.insert(event);
-        }
-      } else {
+      // if (players.length > 1) {
+      //   if (event.state === players[0] && !alreadyPlayed) {
+      //     alreadyPlayed = true;
+      //     game.insert(event);
+      //   }
+      // } else {
         game.insert(event);
-      }
+      // }
     });
     socket.emit('started', {playerNum: i});
     socket.emit('state', game.getState());
@@ -158,8 +158,8 @@ var startGame = function(gameId, io) {
     if( !io.nsps['/'].adapter.rooms[gameId] ) {
       delete playersInRoom[gameId];
       game = null;
+      // clearInterval( intervalID2 );
       clearInterval( intervalID );
-      clearInterval( intervalID2 );
     }
   }, 10000 );
 
@@ -183,7 +183,7 @@ var startGame = function(gameId, io) {
     delete playersInRoom[gameId];
     game = null;
     clearInterval( intervalID );
-    clearInterval( intervalID2 );
+    // clearInterval( intervalID2 );
   });
 
   console.log("ALL LISTENERS ATTACHED");
