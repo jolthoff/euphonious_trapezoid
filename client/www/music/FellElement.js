@@ -3,7 +3,7 @@ window.AudioContext.prototype.createFellElement = function( ) {
   var ms = Math.pow( 10, -3 );
   var element = {};
   element.master = context.createGain( );
-  element.master.gain.value = 0.35;
+  element.master.gain.value = 1;
   element.connect = function( destination ) {
     if( destination.hasOwnProperty( 'input' ) ) {
       element.master.connect( destination.input );
@@ -35,7 +35,7 @@ window.AudioContext.prototype.createFellElement = function( ) {
     voice.filter.connect( element.master );
     voice.sineFreqEnv = {};
     voice.sineFreqEnv.attack = {
-      time: ( 1 + valence * 100 / 8 + Math.random( ) * 10 ) * ms,
+      time: ( 1 + valence * 30 / 8 + Math.random( ) * 1 ) * ms,
       target: fundamental * 8,
       initial: fundamental * 2
     };

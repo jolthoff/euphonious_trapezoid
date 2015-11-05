@@ -202,17 +202,17 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
         .attr("cx", getSvgPosition(data.coordinates).x)
         .attr("cy", getSvgPosition(data.coordinates).y)
       } else {
-        duration = 125;
+        duration = 1000;
         sphere = d3.select("#grid").append("circle").datum( { id: NaN } )
         .attr("r", 0)
         .attr("class", "blip")
-        .style("fill", "black")
+        .style("fill", "white")
         .attr("cx", getSvgPosition(data.coordinates).x)
         .attr("cy", getSvgPosition(data.coordinates).y)
         .transition()
         .duration(duration/2)
         .ease("elastic")
-        .attr("r", Number(radius.slice(0, -1)) * 0.5 + "%" )
+        .attr("r", Number(radius.slice(0, -1)) * 0.85 + "%" )
         .transition()
         .duration(duration/2)
         .ease("linear")
@@ -225,7 +225,7 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
   var musicalPut = function (data, when) {
     if (data.success) {
       // trigger put sound
-      var neighbors = d3.select('.piece').filter( function(d) {
+      var neighbors = d3.selectAll('.piece').filter( function(d) {
         return (d.coordinates.x === data.coordinates.x + 1 && d.coordinates.y === data.coordinates.y) ||
           (d.coordinates.x === data.coordinates.x - 1 && d.coordinates.y === data.coordinates.y) ||
           (d.coordinates.x === data.coordinates.x && d.coordinates.y === data.coordinates.y + 1) ||
@@ -277,7 +277,9 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
           }
         });
       }
-      sounds.put.start( when, notes[data.id], data.valence );
+      if( notes[ data.id ] !== undefined && !isNaN( notes[ data.id ]) ) {
+        sounds.put.start( when, notes[data.id], data.valence );
+      }
       if (data.valenceMinMax[1] >= sounds.rotatorDrones.length) {
         if (chord.length > 0 ) {
           sounds.rotatorDrones.push(context.createDroneElement( chord.splice( Math.floor( Math.random() * chord.length), 1)[0] ) );
@@ -326,11 +328,14 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
     .ease("linear")
     .attr("r", 0)
     .remove();
+    return true;
   };
   var musicalRemoved = function (data, when) {
     sounds.removed.start( when, notes[data.id], data.valence );
     if (sounds.rotatorDrones.length - 1 > data.valenceMinMax[1] ) {
       var drone = sounds.rotatorDrones.pop();
+      console.log( drone.note );
+      chord.push( drone.note );
       drone.stop( when );
     }
     delete notes[data.id];
@@ -350,18 +355,7 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
     .transition()
     .duration( duration * 0.15 )
     .ease("elastic")
-    .attr("r", radius)
-<<<<<<< HEAD
-    // .each('end', function( d ) {
-    //   elements[ d.id ].removed.disconnect();
-    //   elements[ d.id ].removed =
-    //     context.createRemovedElement( elements[ d.id ].midiNote, data.valence );
-    //   elements[ d.id ].removed.connect( filter );
-    // });
-
-
-=======
->>>>>>> refactor animation functions
+    .attr("r", radius);
     sphere.datum( {id: data.id, state: data.state, coordinates: data.to } );
     return true;
   };
@@ -376,7 +370,11 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
     .ease("elastic")
     .attr("cx", getSvgPosition(data.to).x )
     .attr("cy", getSvgPosition(data.to).y )
+<<<<<<< HEAD
     .attr("r", radius);
+=======
+    .attr("r", radius)
+>>>>>>> Music ready
     sphere.datum( {id: data.id, state: data.state, coordinates: data.to } );
     return true;
   };
@@ -407,6 +405,7 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
   };
 
   var animateRotated = function (data) {
+    data = data.rotators;
     var duration = 125;
     var antiClockwiseAngle = (Math.PI/2) * 1.35;
     var antiClockwiseSteps = 90 * 1.25;
@@ -521,8 +520,10 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
       if( noteIndex > 0 ) {
         chord.splice( noteIndex, 1 );
       } else {
-        sounds.rotatorDrones[ tuple[ 1 ] ]
-          .rotate( when, chord.splice( Math.floor( Math.random( ) * chord.length ), 1 )[ 0 ] );
+        if( chord.length > 0 ) {
+          sounds.rotatorDrones[ tuple[ 1 ] ]
+            .rotate( when, chord.splice( Math.floor( Math.random( ) * chord.length ), 1 )[ 0 ] );
+        }
       }
     });
   };
@@ -629,13 +630,13 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
   var animateIndicator = function () {
     duration = 1000;
     indicator.transition()
-    .duration(duration * 0.5)
-    .ease("sin")
-    .attr("r",  radius)
+    .duration(duration / 8)
+    .ease("elastic")
+    .attr("r",  Number( radius.slice( 0, -1 ) ) * 0.85 + '%' )
     .transition()
-    .duration(duration * 0.5)
-    .ease("sin")
-    .attr("r", anchorRadius)
+    .duration(duration * 7 / 8 )
+    .ease("elastic")
+    .attr("r", radius );
     return true;
   };
   var musicalIndicator = function( when ) {
@@ -644,75 +645,85 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
   var animateSequence = function() {
     var duration = 125;
     if( lastSequenced !== undefined ) {
-      var sphere = d3.select( '.piece' ).filter( function( d ) { return d.id === lastSequenced; } );
+      var sphere = d3.selectAll( '.piece' ).filter( function( d ) { 
+        return d.id == lastSequenced;
+      });
       sphere.transition( )
-        .duration( duration / 2 )
+        .duration( duration / 4 )
         .ease( 'cubic-in-out' )
-        .attr( 'r', Number( radius.slice( 0, -1 ) ) * 0.8 + '%' )
-        .style( 'fill', function( d ) {
-          return colors[ d.state ][ 1 ];
-        })
+        .attr( 'r', Number( radius.slice( 0, -1 ) ) * 0.9 + '%' )
+        // .style( 'fill', function( d ) {
+        //   return colors[ d.state ][ 1 ];
+        // })
         .transition( )
-        .duration( duration / 2 )
+        .duration( duration * 3 / 4 )
         .ease( 'elastic' )
-        .attr( 'r', radius )
-        .style( 'fill', function( d ) {
-          return colors[ d.state ][ 1 ];
-        });
+        .attr( 'r', radius );
+        // .style( 'fill', function( d ) {
+        //   return colors[ d.state ][ 0 ];
+        // });
     }
     return true;
   };
   var musicalSequence = function ( when ) {
+    console.log( 'in musical sequence, lastSequenced: ', lastSequenced );
     if (lastSequenced === undefined) {
       var IDs = Object.keys(notes);
       lastSequenced = IDs[ Math.floor( Math.random() * IDs.length) ];
       if( lastSequenced !== undefined ) {
-        d3.select( '.piece' ).each( function( d ) {
-          if( d.id === lastSequenced ) {
+        d3.selectAll( '.piece' ).each( function( d ) {
+          if( d.id == lastSequenced && notes[ d.id ] !== undefined && d.valence ) {
             sounds.sequence.start( when, notes[ d.id ], d.valence );
           }
         });
       }
     } else {
-      d3.select('.piece').each( function (d) {
-        if( d.id === lastSequenced ) {
-          var choice = Math.floor( Math.random() * 4 );
-          d3.select('.piece').each( function (e) {
-            if (choice === 0) {
-              if (e.coordinates.x === d.coordinates.x && e.coordinates.y === d.coordinates.y + 1 ) {
-                if( e.status !== 'A' ) {
-                  sounds.sequence.start( when, notes[ e.id ], e.valence );
-                  lastSequenced = e.id;
-                }
-              }
-            } else if (choice === 1) {
-              if (e.coordinates.x === d.coordinates.x + 1 && e.coordinates.y === d.coordinates.y) {
-                if( e.status !== 'A' ) {
-                  sounds.sequence.start( when, notes[ e.id ], e.valence );
-                  lastSequenced = e.id;
-                }
-              }
-            } else if (choice === 2) {
-              if (e.coordinates.x === d.coordinates.x && e.coordinates.y === d.coordinates.y - 1 ) {
-                if( e.status !== 'A' ) {
-                  sounds.sequence.start( when, notes[ e.id ], e.valence );
-                  lastSequenced = e.id;
-                }
-              }
-            } else {
-              if (e.coordinates.x === d.coordinates.x - 1 && e.coordinates.y === d.coordinates.y) {
-                if( e.status !== 'A' ) {
-                  sounds.sequence.start( when, notes[ e.id ], e.valence );
-                  lastSequenced = e.id;
-                }
-              }
-            }
-          });
-          if( lastSequenced === d.id ) {
-            lastSequenced = undefined;
-          }
-        }
+      var sphere = d3.selectAll( '.piece' ).filter( function( d ) {
+        return d.id == lastSequenced;
       });
+      if( sphere.size( ) === 1 ) {
+        sphere.each( function( d ) {
+          if( d.id == lastSequenced ) {
+            var choice = Math.floor( Math.random() * 4 );
+            d3.selectAll('.piece').each( function (e) {
+              if (choice === 0) {
+                if (e.coordinates.x === d.coordinates.x && e.coordinates.y === d.coordinates.y + 1 ) {
+                  if( e.state !== 'A' && notes[ e.id ] !== undefined && e.valence ) {
+                    sounds.sequence.start( when, notes[ e.id ], e.valence );
+                    lastSequenced = e.id;
+                  }
+                }
+              } else if (choice === 1) {
+                if (e.coordinates.x === d.coordinates.x + 1 && e.coordinates.y === d.coordinates.y) {
+                  if( e.state !== 'A' && notes[ e.id ] !== undefined && e.valence ) {
+                    sounds.sequence.start( when, notes[ e.id ], e.valence );
+                    lastSequenced = e.id;
+                  }
+                }
+              } else if (choice === 2) {
+                if (e.coordinates.x === d.coordinates.x && e.coordinates.y === d.coordinates.y - 1 ) {
+                  if( e.state !== 'A' && notes[ e.id ] !== undefined && e.valence ) {
+                    sounds.sequence.start( when, notes[ e.id ], e.valence );
+                    lastSequenced = e.id;
+                  }
+                }
+              } else {
+                if (e.coordinates.x === d.coordinates.x - 1 && e.coordinates.y === d.coordinates.y) {
+                  if( e.state !== 'A' && notes[ e.id ] !== undefined && e.valence ) {
+                    sounds.sequence.start( when, notes[ e.id ], e.valence );
+                    lastSequenced = e.id;
+                  }
+                }
+              }
+            });
+            if( lastSequenced == d.id ) {
+              lastSequenced = undefined;
+            }
+          }
+        });
+      } else {
+        lastSequenced = undefined;
+      }
     }
   };
   var init = function (element, size) {
@@ -773,7 +784,12 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
       }
       tracks[key].connect(filter);
     }
-    tracks.rotatorDrones.gain.value = 0;
+    tracks.rotatorDrones.gain.value = 0.75;
+    tracks.moved.gain.value = 2;
+    tracks.fell.gain.value = 0.5;
+    tracks.indicator.gain.value = 1.5;
+    tracks.off.gain.value = 0.25;
+    tracks.shake.gain.value = 0.25;
     var compressor = context.createDynamicsCompressor( );
     filter.connect( compressor );
     compressor.connect( context.destination );

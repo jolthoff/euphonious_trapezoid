@@ -20,12 +20,12 @@ AudioContext.prototype.createIndicatorElement = function( ) {
   var context = this;
   var ms = Math.pow( 10, -3 );
   // midiNote defaults to C2
-  var midiNote = 36;
+  var midiNote = 24;
   var anchor = {};
   anchor.envelopes = [];
   anchor.master = context.createGain( );
   anchor.master.gain.value = 0.75;
-  anchor.sustain = 200 * ms;
+  anchor.sustain = 50 * ms;
   anchor.connect = function( destination ) {
     if( destination.hasOwnProperty( 'input' ) ) {
       anchor.master.connect( destination.input );

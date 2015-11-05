@@ -4,7 +4,7 @@ window.AudioContext.prototype.createDroneElement = function( midiNote ) {
   var fundamental = 440 * Math.pow( 2, ( midiNote - 69 ) / 12 );
   element.master = context.createGain( );
   element.master.gain.value = 0;
-  var note = midiNote;
+  element.note = midiNote;
   // Initialize the three oscillators
   var waves = [ 'triangle', 'square', 'sawtooth', 'sine' ];
   var filters = [ 'lowpass', 'highpass', 'bandpass' ];
@@ -27,15 +27,12 @@ window.AudioContext.prototype.createDroneElement = function( midiNote ) {
     element[ 'osc' + i ] = context.createOscillator( );
     element[ 'osc' + i ].frequency.value = fundamental;
     element[ 'osc' + i ].detune.value = Math.random( ) * 50 - 25;
-    element[ 'osc' + i ].type = 'triangle';
+    element[ 'osc' + i ].type = 'sine';
     element[ 'osc' + i ].start( context.currentTime );
     element[ 'osc' + i ].connect( element[ 'gain' + i ] );
-  }
-  element.note = function( ) {
-    return note;
   };
   element.rotate = function( when, midiNote ) {
-    note = midiNote;
+    element.note = midiNote;
     fundamental = 440 * Math.pow( 2, ( midiNote - 69 ) / 12 );
     for( var i = 1; i <= 3; i++ ) {
       element[ 'osc' + i ].frequency.setTargetAtTime( fundamental, when, 0.25 );
@@ -51,7 +48,7 @@ window.AudioContext.prototype.createDroneElement = function( midiNote ) {
   };
   element.start = function( when ) {
     // Just come in slowly
-    element.master.gain.setTargetAtTime( 0.35, when, 25 );
+    element.master.gain.setTargetAtTime( 0.35, when, 50 );
     // And then schedule changes on every parameter
     // but the oscillator frequencies every second
     element.playing = true;
@@ -70,17 +67,39 @@ window.AudioContext.prototype.createDroneElement = function( midiNote ) {
         element[ 'glfo' + i ].frequency.setTargetAtTime( glfofreq, context.currentTime, 1 );
         var glfogain = element[ 'glfogain' + i ].gain.value;
         glfogain *= 1 + Math.random( ) * 0.3 - 0.15;
-        if( glfogain <= 0 ) {
+        if( glfogain <= 0.1 ) {
           glfogain = 0.1;
         } else if( glfogain > 0.3 ) {
           glfogain = 0.3;
         }
         element[ 'glfogain' + i ].gain.setTargetAtTime( glfogain, context.currentTime, 1 );
+        var gain = element[ 'glfogain' + i ].gain.value;
+        gain *= 1 + Math.random( ) * 1 - 0.5;
+        if( gain <= 0.01 ) {
+          gain = 0.01;
+        } else if( gain > 1 ) {
+          gain = 1;
+        }
+        element[ 'gain' + i ].gain.setTargetAtTime( gain, context.currentTime, 0.25 );
+        var detune = Math.random( ) * 100 - 50;
+        element[ 'osc' + i ].detune.setTargetAtTime( detune, context.currentTime, 0.25 );
       }
+      var master = element.master.gain.value;
+      master *= 1 + Math.random( ) * 1 - 0.5;
+      if( master <= 0.01 ) {
+        master = 0.01;
+      } else if( master > 1 ) {
+        master = 1;
+      }
+      if( !element.playing ) {
+        master = 0;
+      }
+      element.master.gain.setTargetAtTime( master, context.currentTime, 0.25 );
     };
     schedule( );
   };
   element.stop = function( when ) {
+    element.playing = false;
     element.master.gain.setTargetAtTime( 0, when, 2 );
     var intervalID = setInterval( function( ) {
       if( element.master.gain.value < 0.01 ) {

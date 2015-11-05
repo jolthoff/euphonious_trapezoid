@@ -16,31 +16,32 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
   var k = Math.pow( 10, 3 );
   var animationTime = 125 * ms;
   var lastScheduledAnimation = game.context.currentTime;
-  var scheduleWindowTime = 200 * ms;
-  var rescheduleTime = 50 * ms;
+  var scheduleWindowTime = 75 * ms;
+  var rescheduleTime = 25 * ms;
   var turnCounter = 0;
   var checkQueue = function () {
     d3.timer( checkQueue, rescheduleTime * k );
     var startTime = game.context.currentTime;
     while( lastScheduledAnimation + animationTime < startTime + scheduleWindowTime ) {
       var queued = eventQueue.shift();
-      if (queued && queued.event !== 'state') {
-        d3.timer( game.animate[queued.event].bind(null, queued.data), (lastScheduledAnimation + animationTime - game.context.currentTime) * k);
+      var delay = ( lastScheduledAnimation + animationTime - game.context.currentTime ) * k;
+      if (queued && queued.event !== 'state' && queued.event !== 'suspended' ) {
+        d3.timer( game.animate[queued.event].bind(null, queued.data), delay );
         game.musical[queued.event](queued.data, lastScheduledAnimation + animationTime);
       } else {
         if (queued) {
-          d3.timer( game.updateBoard.bind(null, queued.data), (lastScheduledAnimation + animationTime - game.context.currentTime) * k );
+          if( queued.event === 'state' ) {
+            d3.timer( game.updateBoard.bind(null, queued.data), delay );
+          } else if( queued.event === 'suspended' ) {
+            d3.timer( game.animate[ queued.event ].bind( null, queued.data ), delay );
+          }
         }
-        var screen = Math.random();
-        if (screen < 0.95) {
-          console.log( 'About to sequence' );
-          game.musical.sequence( lastScheduledAnimation + animationTime);
-          d3.timer(game.animate.sequence, (lastScheduledAnimation + animationTime - game.context.currentTime) * k );
-        }
+        game.musical.sequence( lastScheduledAnimation + animationTime );
+        d3.timer(game.animate.sequence, delay );
       }
       if (turnCounter % 8 === 0) {
         game.musical.indicator( lastScheduledAnimation + animationTime);
-        d3.timer(game.animate.indicator, (lastScheduledAnimation + animationTime - game.context.currentTime) * k );
+        d3.timer(game.animate.indicator, delay );
       }
       lastScheduledAnimation += animationTime;
       turnCounter++;
@@ -83,7 +84,6 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
   }, false);
 
   socket.on('state', function (data) {
-    console.log( 'updateBoard: ', data);
     eventQueue.push({
       event: 'state',
       data: data
@@ -119,7 +119,6 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
   });
 
   socket.on('suspended', function (data) {
-    console.log( data.id + " suspended");
     eventQueue.push( {
       event: 'suspended',
       data: data
@@ -134,7 +133,6 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
   });
 
   socket.on('fell', function (data) {
-    console.log( data.id + " fell");
     eventQueue.push( {
       event: 'fell',
       data: data
