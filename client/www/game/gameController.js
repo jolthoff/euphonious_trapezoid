@@ -174,7 +174,7 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
     // an array with players profiles in order of their rank for current game
     for (var i = 0; i < playersArray.length; i++) {
       if (playersArray[i]) {
-        if (playersArray[i].userName !== player.profile.userName /*!$scope.dupObj[playersArray[i].userName]*/ ) {
+        if (playersArray[i].userName !== player.profile.userName && playersArray[i].userName !== 'anonymous'/*!$scope.dupObj[playersArray[i].userName]*/ ) {
           $scope.endGameArray.push(playersArray[i].userName);
           //$scope.dupObj[playersArray[i].userName] = playersArray[i].userName;
         }
