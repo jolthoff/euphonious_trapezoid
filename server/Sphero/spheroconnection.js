@@ -205,11 +205,13 @@ module.exports.init = function(io, socket) {
   socket.on('checkForUsers', function() {
     io.emit('updateUsers', activeUsers);
   });
+
   socket.on('leftGame', function() {
     console.log("user who submitted left game event is ", activeUsers[this.id].joined);
+    console.log("Before leave event, the ROOM HAS THESE CONNECTIONS ", Object.keys(io.nsps['/'].adapter.rooms[activeUsers[this.id].joined]))
     this.leave(activeUsers[this.id].joined);
+    console.log("After leave event, we have THESE CONNECTIONS ", Object.keys(io.nsps['/'].adapter.rooms[activeUsers[this.id].joined]));
     activeUsers[this.id].joined = false;
-
   });
 
   socket.on('leftGame', function() {
