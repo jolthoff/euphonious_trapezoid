@@ -16,6 +16,7 @@ var privateGame = function(io, data) {
   var gameId = ((Math.random() * 100000) || 0).toString();
 
   activeUsers[this.id].profile = data;
+  activeUsers[this.id].joined = true;
 
   io.to(this.id).emit('hosting', gameId);
   this.join(gameId);
@@ -25,10 +26,12 @@ var privateGame = function(io, data) {
 var joinPrivate = function(io, data) {
 
   this.join(data.gameID);
-  console.log("server heard the game id is ", data.gameID);
+
   activeUsers[this.id].joined = true;
+
   playersInRoom[data.gameID] = playersInRoom[data.gameID] || [];
   playersInRoom[data.gameID].push([data.profile, data.profile.userName]);
+
   console.log("the sockets connected to room are ", Object.keys(io.nsps['/'].adapter.rooms[data.gameID]));
   if(Object.keys(io.nsps['/'].adapter.rooms[data.gameID]).length === 3) {
     startGame(data.gameID, io);
@@ -207,6 +210,9 @@ module.exports.init = function(io, socket) {
   });
   socket.on('checkForUsers', function() {
     io.emit('updateUsers', activeUsers);
+  });
+  socket.on('leftGame', function(){
+    activeUsers[this.id].joined = false;
   });
 
   socket.on('disconnect', function(){

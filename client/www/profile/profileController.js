@@ -9,9 +9,11 @@ sphero.controller('profileController', ['$scope', '$window', 'Auth', 'socket', '
 
     $scope.home = function() {
       setTimeout(function() {$state.go('nav');}, 500);
+      socket.emit('leftGame');
     };
   	$scope.logout = function() {
   		Auth.destroyCredentials();
+      socket.emit('leftGame');
       setTimeout(function() {$state.go('nav');}, 500);
   	};
 
