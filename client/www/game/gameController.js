@@ -95,7 +95,6 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
   events.forEach( function( event ) {
     socket.on( event, actionListeners[ event ] );
   });
-<<<<<<< af7e4dc2923609d3c3c03882cbdbbd7cee34cc0a
   var resizeListener = function( ) {
     game.setSize( );
   };
@@ -123,7 +122,6 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
     }
   };
   document.getElementById('game').addEventListener( 'mousedown', gameMousedownListener );
-=======
 
   socket.on('turnEnded', function(data) {
     // data === {duration: DUR, players: [0,1,2,3] }
@@ -165,30 +163,22 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
         newRank = newRank - 100;
       }
     }
-    newRank = (oldRank + newRank) / 2;
+    newRank = Math.floor((oldRank + newRank) / 2);
     player.profile.ranking = newRank;
 
     Auth.updateProfile(player.profile);
   };
 
->>>>>>> Add updateProfile functionality
   $scope.showPopup = function(playersArray, addFriendFunc) {
     $scope.endGameArray = []; // an array of the player usernames in order of current game performance
     $scope.me = null;
     $scope.dupObj = {};
     $scope.place = null;
     $scope.placeObj = {
-<<<<<<< af7e4dc2923609d3c3c03882cbdbbd7cee34cc0a
       '1': '4th',
       '2': '3rd',
       '3': '2nd',
       '4': '1st'
-=======
-      '0': '4st',
-      '1': '3nd',
-      '2': '2rd',
-      '3': '1th'
->>>>>>> Add updateProfile functionality
     };
     $scope.addFriends = addFriendFunc;
     // an array with players profiles in order of their rank for current game
@@ -203,8 +193,6 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
         }
       }
     }
-<<<<<<< af7e4dc2923609d3c3c03882cbdbbd7cee34cc0a
-=======
     $scope.updateProfile();
     console.log('endGameArray ============', $scope.endGameArray);
     // //allow player to friend other players
@@ -212,7 +200,6 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
     //   Auth.addFriend(otherPlayer, player.profile.id);
     // };
 
->>>>>>> Add updateProfile functionality
     var signupPopUp = $ionicPopup.show({
       templateUrl: '../endgame/endgame.html',
       title: 'Game Stats',

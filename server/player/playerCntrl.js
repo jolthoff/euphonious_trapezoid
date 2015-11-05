@@ -76,10 +76,10 @@ module.exports.friend = function(req, res) {
 };
 
 module.exports.updateProfile = function(req, res) {
-  console.log("REQUEST FROM UPDATE PROFILE IS ", req);
-  var ranking = req.body.ranking;
-  var gamesPlayed = req.body.gamesPlayed;
-  var userName = req.body.userName;
+  console.log("REQUEST FROM UPDATE PROFILE IS ", req.body, " username is ", req.body.userName);
+  var ranking = req.body.profile.ranking;
+  var gamesPlayed = req.body.profile.gamesPlayed;
+  var userName = req.body.profile.userName;
   var params = [ranking, gamesPlayed];
 
   var sqlQueryIns = "INSERT INTO Players (Ranking, Games_Played) \
