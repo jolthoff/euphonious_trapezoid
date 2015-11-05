@@ -109,8 +109,11 @@ var startGame = function(gameId, io) {
     players.push(String(i));
   };
   var game = new Game();
-
   // -- FOR TURN IMPLEMENTATION -- //
+  // if (players.length > 1) {
+  //   var alreadyPlayed = false;
+
+
   // if (players.length > 1) {
   //   var alreadyPlayed = false;
   //   var intervalID2 = setInterval( function() {
