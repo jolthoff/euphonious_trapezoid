@@ -74,3 +74,22 @@ module.exports.friend = function(req, res) {
   });
 
 };
+
+module.exports.updateProfile = function(req, res) {
+  console.log("REQUEST FROM UPDATE PROFILE IS ", req);
+  var ranking = req.body.ranking;
+  var gamesPlayed = req.body.gamesPlayed;
+  var userName = req.body.userName;
+  var params = [ranking, gamesPlayed];
+
+  var sqlQueryIns = "INSERT INTO Players (Ranking, Games_Played) \
+    Value (?, ?) WHERE Player_Username = '" + userName + "'";
+
+  db.query(sqlQueryIns, params, function(err, results) {
+    if (err) {
+      console.log(err)
+    } else {
+      res.status(200).send("Your new stats are ", results);
+    }
+  });
+};

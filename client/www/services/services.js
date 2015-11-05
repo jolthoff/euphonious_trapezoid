@@ -1,4 +1,5 @@
-sphero.factory('Auth', ['$http', 'SpheroApiUrl', '$window', function($http, SpheroApiUrl, $window) {
+sphero.factory('Auth', ['$http', 'SpheroApiUrl', '$window', 'player',
+ function($http, SpheroApiUrl, $window, player) {
 
   var authFactory = {};
 
@@ -89,7 +90,19 @@ sphero.factory('Auth', ['$http', 'SpheroApiUrl', '$window', function($http, Sphe
     }).then(function(resp){
       console.log(resp);
     });
-  }
+  };
+
+  authFactory.updateProfile = function(profile) {
+    return $http({
+      method: 'POST',
+      url: SpheroApiUrl + '/player/profile',
+      data: {
+        profile: profile
+      }
+    }).then(function(resp) {
+      console.log("update profile response is ", resp);
+    });
+  };
 
   return authFactory;
 
@@ -132,7 +145,7 @@ sphero.factory('socket', ['SpheroApiUrl', '$rootScope', function(SpheroApiUrl, $
 }]);
 
 sphero.factory('player', ['$window','jwtHelper', function($window, jwtHelper) {
-  
+
   var playerNum = null;
   //information used to render to player in profile
   if ($window.localStorage.getItem('id_token')) {
