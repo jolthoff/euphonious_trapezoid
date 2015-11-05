@@ -214,13 +214,6 @@ module.exports.init = function(io, socket) {
 
   });
 
-  socket.on('leftGame', function() {
-    console.log("user who submitted left game event is ", activeUsers[this.id].joined);
-    this.leave(activeUsers[this.id].joined);
-    activeUsers[this.id].joined = false;
-
-  });
-
   socket.on('disconnect', function(){
     delete activeUsers[this.id];
     io.emit('updateUsers', activeUsers);
