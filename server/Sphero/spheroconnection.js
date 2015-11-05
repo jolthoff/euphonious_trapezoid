@@ -13,7 +13,11 @@ var invite = function(io, data) {
 
 var privateGame = function(io, data) {
 
+<<<<<<< 46e824078a08190d38493ad5e1e6e7aafc4a18ed
   var gameId = (1 +Math.random() * 100000).toString();
+=======
+  var gameId = (1 + Math.random() * 100000).toString();
+>>>>>>> Two player game instances
 
   activeUsers[this.id].profile = data;
   activeUsers[this.id].joined = gameId;
@@ -50,7 +54,11 @@ var grabProfile = function(io, data) {
 var host = function(io, data) {
   // Create a unique Socket.IO Room
   if (!activeUsers[this.id].joined) {
+<<<<<<< 46e824078a08190d38493ad5e1e6e7aafc4a18ed
     var gameId = (1 +Math.random() * 100000).toString();
+=======
+    var gameId = (1 + Math.random() * 100000).toString();
+>>>>>>> Two player game instances
     // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
     // Join the Room and wait for the players
     activeUsers[this.id].profile = data;
@@ -77,7 +85,7 @@ var join = function(io, data) {
       playersInRoom[gameQueue[0]] = playersInRoom[gameQueue[0]] || [];
       playersInRoom[gameQueue[0]].push([data, data.userName]);
 
-      if(Object.keys(io.nsps['/'].adapter.rooms[gameQueue[0]]).length === 4) {
+      if(Object.keys(io.nsps['/'].adapter.rooms[gameQueue[0]]).length === 2) {
         startGame(gameQueue.shift(), io);
       }
     } else {
