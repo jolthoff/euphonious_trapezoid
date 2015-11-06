@@ -156,19 +156,19 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
     var oldRank = player.profile.ranking;
     var newRank = player.profile.ranking;
 
-    if (Object.keys($scope.placeObj).length === 2) {
+    if ($scope.endGameArray.length === 2) {
       if ($scope.place === 0) {
         newRank = newRank + 100;
       } else {
         newRank = newRank - 100;
       }
-    } else if (Object.keys($scope.placeObj).length === 3) {
+    } else if ($scope.endGameArray.length === 3) {
       if ($scope.place === 0) {
         newRank = newRank + 100;
       } else if ($scope.place === 2) {
         newRank = newRank - 100;
       }
-    } else if (Object.keys($scope.placeObj).length === 4) {
+    } else if ($scope.endGameArray.length === 4) {
       if ($scope.place === 0) {
         newRank = newRank + 100;
       } else if ($scope.place === 1) {
