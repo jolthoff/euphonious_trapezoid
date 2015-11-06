@@ -340,7 +340,6 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
     sounds.removed.start( when, notes[data.id], data.valence );
     if (sounds.rotatorDrones.length - 1 > data.valenceMinMax[1] ) {
       var drone = sounds.rotatorDrones.pop();
-      console.log( drone.note );
       chord.push( drone.note );
       drone.stop( when );
     }
@@ -423,7 +422,6 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
       low = 0;
       high = data.length - 1;
       mid = Math.floor( (low + high)/2 )
-      console.log('.piece data: ', d);
       while ( data[mid].id !== d.id) {
         if ( low >= high ) {
           return false;
@@ -795,7 +793,7 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
     tracks.rotatorDrones.gain.value = 0.75;
     tracks.moved.gain.value = 2;
     tracks.fell.gain.value = 0.5;
-    tracks.indicator.gain.value = 1.5;
+    tracks.indicator.gain.value = 0.75;
     tracks.off.gain.value = 0.15;
     tracks.shake.gain.value = 0.15;
     compressor = context.createDynamicsCompressor( );
@@ -830,8 +828,8 @@ sphero.factory('game', ['scales', 'findChords', function (scales, findChords) {
     // Disconnect the compressor
     compressor.disconnect( );
     // Release reference to the context
-    context.close( );
-    context = undefined;
+    // context.close( );
+    // context = undefined;
   };
   return {
     context: context,

@@ -28,7 +28,8 @@ router.config(function($stateProvider, $urlRouterProvider) {
           templateUrl: 'loading/loading.html',
           controller: 'loadingController'
         }
-      }
+      },
+      cache: false
     })
     .state('profile.launch', {
       url: '/launch',
@@ -55,7 +56,8 @@ router.config(function($stateProvider, $urlRouterProvider) {
           templateUrl: 'game/game.html',
           controller: 'gameController'
         }
-      }
+      },
+      cache: false
     })
     .state('profile.gameover', {
       url: '/gameover',
@@ -64,7 +66,8 @@ router.config(function($stateProvider, $urlRouterProvider) {
           templateUrl: 'endgame/endgame.html',
           controller: 'endgameController'
         }
-      }
+      },
+      cache: false
     });
 
   // if none of the above states are matched, use this as the fallback
@@ -87,7 +90,6 @@ router.run(function($rootScope, $state, Auth) {
 
 router.config(function Config($httpProvider, jwtInterceptorProvider) {
   jwtInterceptorProvider.tokenGetter = function() { //refactor to service for minification
-    console.log(localStorage);
     return localStorage.getItem('id_token');
   };
 

@@ -3,7 +3,6 @@ sphero.controller('loadingController', ['$scope', '$state', '$stateParams', 'soc
 
 
   	var action = $stateParams.action;
-    console.log("the action is ", action);
     if (action === null) {
       $state.go('nav');
     } else if (action === 'single') {

@@ -11,11 +11,9 @@ sphero.controller('navController', ['$scope', '$window', 'Auth', '$state', 'play
     $scope.pushIt = true;
 
     $scope.single = function() {
-
       $state.go('profile.loading', {
         action: 'single'
       });
-
     };
 
     $scope.play = function() {

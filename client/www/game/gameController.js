@@ -19,7 +19,9 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
   var rescheduleTime = 25 * ms;
   var turnCounter = 0;
   var checkQueue = function() {
-    d3.timer(checkQueue, rescheduleTime * k);
+    if( !gameEnded ) {
+      d3.timer(checkQueue, rescheduleTime * k);
+    }
     var startTime = game.context.currentTime;
     while (lastScheduledAnimation + animationTime < startTime + scheduleWindowTime) {
       var queued = eventQueue.shift();
@@ -81,10 +83,10 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
     events.forEach( function( event ) {
       socket.removeListener( event, actionListeners[ event ] );
     });
-    if( game.gameInfo.isSingle ) {
-      document.getElementById( 'indicator' ).removeEventListener( 'click', indicatorListener );
-    }
-    document.getElementById( 'game' ).removeEventListener( 'mousedown', gameMousedownListener );
+    // if( game.gameInfo.isSingle ) {
+    //   document.getElementById( 'indicator' ).removeEventListener( 'click', indicatorListener );
+    // }
+    //document.getElementById( 'game' ).removeEventListener( 'mousedown', gameMousedownListener );
     window.removeEventListener('resize', resizeListener);
 
   };
