@@ -166,7 +166,11 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
     newRank = Math.floor((oldRank + newRank) / 2);
     player.profile.ranking = newRank;
 
-    Auth.updateProfile(player.profile);
+    Auth.updateProfile(player.profile)
+      .then(function(results) {
+        console.log("Results are", results);
+
+      });
   };
 
   $scope.showPopup = function(playersArray, addFriendFunc) {

@@ -100,7 +100,7 @@ sphero.factory('Auth', ['$http', 'SpheroApiUrl', '$window', 'player',
         profile: profile
       }
     }).then(function(resp) {
-      console.log("update profile response is ", resp);
+      return resp;
     });
   };
 
