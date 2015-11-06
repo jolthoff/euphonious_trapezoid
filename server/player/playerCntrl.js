@@ -81,7 +81,7 @@ module.exports.updateProfile = function(req, res) {
   var userName = req.body.profile.userName;
   var params = [ranking, gamesPlayed];
 
-  var sqlQueryIns = "UPDATE Players SET Ranking = " + ranking + ", SET Games_Played = " + gamesPlayed + " \
+  var sqlQueryIns = "UPDATE Players SET Ranking = " + ranking + ", Games_Played = " + gamesPlayed + " \
     WHERE Player_Username = '" + userName + "'";
 
   db.query(sqlQueryIns, function(err, results) {
