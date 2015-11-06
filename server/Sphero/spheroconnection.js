@@ -220,6 +220,7 @@ module.exports.init = function(io, socket) {
     if (activeUsers[this.id].joined && io.nsps['/'].adapter.rooms[activeUsers[this.id].joined]) {
       this.leave(activeUsers[this.id].joined);
       io.to(this.id).emit('leaveGame');
+      activeUsers[this.id].joined = false;
     }
   });
 

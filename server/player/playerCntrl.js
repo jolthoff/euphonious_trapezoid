@@ -65,8 +65,8 @@ module.exports.friend = function(req, res) {
           if (err) {
             console.log(err);
           } else {
-            console.log("tTHE RESULTS OF THE ADD FRIEND QUERY IS ", results);
-            res.status(200).send(results);
+
+            res.status(200).send(friendName);
           }
         });
       }
