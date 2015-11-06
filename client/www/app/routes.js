@@ -95,7 +95,6 @@ router.config(function Config($httpProvider, jwtInterceptorProvider) {
 });
 
 
-
 // .factory('AttachTokens', function ($window) {
 //   //this factory stops all outgoing requests, then looks in local storage
 //   //for the user's JWT and adds the token to the request header
