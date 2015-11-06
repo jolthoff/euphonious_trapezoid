@@ -76,14 +76,13 @@ module.exports.friend = function(req, res) {
 };
 
 module.exports.updateProfile = function(req, res) {
-  console.log("REQUEST FROM UPDATE PROFILE IS ", req.body, " username is ", req.body.userName);
   var ranking = req.body.profile.ranking;
   var gamesPlayed = req.body.profile.gamesPlayed;
   var userName = req.body.profile.userName;
   var params = [ranking, gamesPlayed];
 
   var sqlQueryIns = "INSERT INTO Players (Ranking, Games_Played) \
-    Value (?, ?) WHERE Player_Username = '" + userName + "'";
+    Value (?, ?) SELECT Players WHERE Player_Username = '" + userName + "'";
 
   db.query(sqlQueryIns, params, function(err, results) {
     if (err) {
