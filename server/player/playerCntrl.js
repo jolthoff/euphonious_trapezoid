@@ -89,7 +89,7 @@ module.exports.updateProfile = function(req, res) {
     if (err) {
       console.log(err)
     } else {
-      res.status(200).send("Your new stats are ", results);
+      res.status(200).send();
     }
   });
 };
