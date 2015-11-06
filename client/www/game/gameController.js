@@ -74,13 +74,27 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
     game.gameInfo.currentTurn = data.players[ 0 ];
     game.showTurnChange( data.players, data.duration );
   };
+  actionListeners.leaveGame = function( ) {
+    gameEnded = true;
+    game.end( );
+    var events = [ 'put', 'removed', 'moved', 'fell', 'suspended', 'rotated', 'state', 'turnEnded', 'ended', 'leaveGame' ];
+    events.forEach( function( event ) {
+      socket.removeListener( event, actionListeners[ event ] );
+    });
+    if( game.gameInfo.isSingle ) {
+      document.getElementById( 'indicator' ).removeEventListener( 'click', indicatorListener );
+    }
+    document.getElementById( 'game' ).removeEventListener( 'mousedown', gameMousedownListener );
+    window.removeEventListener('resize', resizeListener);
+
+  };
   actionListeners.ended = function(data) {
     gameEnded = true;
     // Game.end releases all of the audio resources.
     game.end( );
     // Remove all listeners related to this specific
     // instance of the game.
-    var events = [ 'put', 'removed', 'moved', 'fell', 'suspended', 'rotated', 'state', 'turnEnded', 'ended' ];
+    var events = [ 'put', 'removed', 'moved', 'fell', 'suspended', 'rotated', 'state', 'turnEnded', 'ended', 'leaveGame' ];
     events.forEach( function( event ) {
       socket.removeListener( event, actionListeners[ event ] );
     });
@@ -91,7 +105,7 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
     window.removeEventListener('resize', resizeListener );
     $scope.showPopup(data);
   };
-  events = [ 'put', 'removed', 'moved', 'fell', 'suspended', 'rotated', 'state', 'turnEnded', 'ended' ];
+  events = [ 'put', 'removed', 'moved', 'fell', 'suspended', 'rotated', 'state', 'turnEnded', 'ended', 'leaveGame' ];
   events.forEach( function( event ) {
     socket.on( event, actionListeners[ event ] );
   });
