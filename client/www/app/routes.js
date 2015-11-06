@@ -12,7 +12,8 @@ router.config(function($stateProvider, $urlRouterProvider) {
     .state('nav', {
       url: '/nav',
       templateUrl: 'nav/nav.html',
-      controller: 'navController'
+      controller: 'navController',
+      cache: false
     })
     .state('profile', {
       url: '/profile',

@@ -240,4 +240,5 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
       $state.go('nav');
     });
   };
+
 }]);
