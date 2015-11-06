@@ -200,7 +200,6 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
       '2': '3rd',
       '3': '4th'
     };
-    $scope.addFriends = addFriendFunc;
     // an array with players profiles in order of their rank for current game
     for (var i = 0; i < playersArray.length; i++) {
       if (playersArray[i]) {
@@ -216,9 +215,9 @@ sphero.controller('gameController', ['$scope', '$state', 'game', 'socket', 'play
     $scope.updateProfile();
     console.log('endGameArray ============', $scope.endGameArray);
     // //allow player to friend other players
-    // $scope.friend = function(otherPlayer) {
-    //   Auth.addFriend(otherPlayer, player.profile.id);
-    // };
+    $scope.friend = function(otherPlayer) {
+      Auth.addFriend(otherPlayer, player.profile.id);
+    };
 
     var signupPopUp = $ionicPopup.show({
       templateUrl: '../endgame/endgame.html',
