@@ -109,6 +109,14 @@ input[type='text'] {
     line-height: inherit;
 }
 
+input[type='password'] {
+    font-family: Vermin;
+    font-size: 2em;
+    font-weight: bold;
+    color: #555555;
+    height: 50px;
+    line-height: inherit;
+}
 
 /* Place Holder CSS */
 

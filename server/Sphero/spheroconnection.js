@@ -5,6 +5,7 @@ var gameQueue = [];
 var playersInRoom = {};
 var activeUsers = {};
 
+
 var invite = function(io, data) {
 
   io.to(data.socketID).emit('invited', { gameID: data.gameID, host: data.host });
@@ -110,6 +111,12 @@ var startGame = function(gameId, io) {
     players.push(String(i));
   };
   var game = new Game();
+
+  var insertListener = function(event) {
+
+    game.insert(event);
+
+  };
   // -- FOR TURN IMPLEMENTATION -- //
   // if (players.length > 1) {
   //   var alreadyPlayed = false;
@@ -126,17 +133,19 @@ var startGame = function(gameId, io) {
   for (var i = 0; i < sockets.length; i++) {
     var socket = sockets[i];
 
-    socket.on('insert', function(event) {
-      // -- FOR TURN IMPLEMENTATION -- //
-      // if (players.length > 1) {
-      //   if (event.state === players[0] && !alreadyPlayed) {
-      //     alreadyPlayed = true;
-      //     game.insert(event);
-      //   }
-      // } else {
-        game.insert(event);
-      // }
-    });
+    // socket.on('insert', function(event) {
+    //   // -- FOR TURN IMPLEMENTATION -- //
+    //   // if (players.length > 1) {
+    //   //   if (event.state === players[0] && !alreadyPlayed) {
+    //   //     alreadyPlayed = true;
+    //   //     game.insert(event);
+    //   //   }
+    //   // } else {
+    //     game.insert(event);
+    //   // }
+    // });
+
+    socket.on('insert', insertListener);
     socket.emit('started', {playerNum: i});
     socket.emit('state', game.getState());
   }
@@ -167,9 +176,11 @@ var startGame = function(gameId, io) {
 
     for (var i = 0; i < sockets.length; i++) {
       console.log("socket id is ", sockets[i].id);
+      sockets[i].removeListener('insert', insertListener);
       activeUsers[sockets[i].id].joined = false;
       sockets[i].leave(gameId);
     }
+
     delete playersInRoom[gameId];
     game = null;
     clearInterval( intervalID );
@@ -219,6 +230,7 @@ module.exports.init = function(io, socket) {
   socket.on('leftGame', function() {
     if (activeUsers[this.id].joined && io.nsps['/'].adapter.rooms[activeUsers[this.id].joined]) {
       this.leave(activeUsers[this.id].joined);
+      this.removeAllListeners('insert');
       io.to(this.id).emit('leaveGame');
       activeUsers[this.id].joined = false;
     }
